@@ -1,13 +1,14 @@
 #/usr/bin/python3
 #encoding:utf-8
 
-from enum import Enum
-
 """
     pathplanning.py (à modifier)
 """
 
+from enum import Enum
 import sys
+
+from parsing import fill_list_vertices
 
 
 def display_usage_and_exit(exit_code: int) -> None:
@@ -19,40 +20,31 @@ def display_usage_and_exit(exit_code: int) -> None:
     sys.exit(exit_code)
 
 
-def parse_input_file(filepath: str) -> list(list(tuple(float))):
+def parse_input_file(filepath: str):
     """
         (0; 0.2) (0; -1) (3.8; 5) (0; 4)
         (2; 3) (3; 2.9) (2; 4)
         parse the input file and return a list of segments
     """
     # TODO:
-    # - check if every polygon has at least 3 vertices
-    # - vérifier qu'un polygone n'ait pas plusieurs sommets confondus
+    # - check if every polygon has at least 3 vertices - OK
+    # - vérifier qu'un polygone n'ait pas plusieurs sommets confondus - OK
     # - vérifier que les polygones enfants soient tous dans le polygone parent
     # - vérifier qu'un polygone enfant ne soit pas dans un autre polygone enfant
 
     vertices_polygon: list(list(tuple(float))) = []
-
     try:
-        with open(filepath, "r") as file:
+        with open(filepath, "r", encoding="utf8") as file:
             lines: list(str) = file.readlines()
     except FileNotFoundError:
         print("File not found")
         sys.exit(84)
-    for line in lines:
-        stock_vertice: list(tuple(float)) = []
-        line = line.replace("(", "").replace(" ", "").replace("\n", "")
-        for elem in line.split(")"):
-            if elem != "":
-                elems: list(str) = elem.split(";")
-                try:
-                    stock_vertice.append((float(elems[0]), float(elems[1])))
-                except (ValueError, IndexError):
-                    sys.exit(84)
-        vertices_polygon.append(stock_vertice)
-    print(vertices_polygon)
-    for line in lines[1:]:
-        print(line)
+    vertices_polygon = fill_list_vertices(lines)
+
+    if len(vertices_polygon[0]) < 3:
+        print("Not enough vertices")
+        sys.exit(84)
+    return vertices_polygon
 
 
 def are_segments_secant() -> bool: # TODO: J + R
@@ -62,7 +54,7 @@ def are_segments_secant() -> bool: # TODO: J + R
     return False
 
 
-def get_distance_between_segments(segment1: tuple(float), segment2: tuple(float)) -> float:
+def get_distance_between_segments(segment1, segment2) -> float:
     """
         Get the distance between two segments
     """
@@ -70,6 +62,9 @@ def get_distance_between_segments(segment1: tuple(float), segment2: tuple(float)
 
 
 class Field:
+    """
+        class Field: (à modifier)
+    """
     def __init__(self, list_limits):
         """
             list_limits: list of the field's limits (as list of list of segments)
@@ -80,21 +75,45 @@ class Field:
         self.min_pos_y = None
         self.max_pos_y = None
 
+    def __str__(self):
+        return f"Field: {self.limits}"
+
+    def __repr__(self):
+        return f"Field: {self.limits}"
+
 
 class Cell:
+    """
+        class Cell: (à modifier)
+    """
 
     class CellType(Enum):
+        """
+            class CellType: (à modifier)
+        """
         COMPLETELY_INSIDE = 0
         CENTER_INSIDE = 1
         CENTER_OUTSIDE = 2
         COMPLETELY_OUTSIDE = 3
 
-        
+        def __str__(self):
+            return self.name
+
+        def __repr__(self):
+            return self.name
+
+
     def __init__(self, center):
         """ center: the coords of the center """
         self.center = center
         self.vertices = ... #TODO
         self.type = ... # TODO
+
+    def __str__(self):
+        return f"Cell({self.center})"
+
+    def __repr__(self):
+        return f"Cell({self.center})"
 
 
 def main() -> None:
@@ -105,7 +124,7 @@ def main() -> None:
         display_usage_and_exit(84)
     if '-h' in sys.argv or '--help' in sys.argv:
         display_usage_and_exit(0)
-    parse_input_file(sys.argv[1])
+    print(parse_input_file(sys.argv[1]))
 
 
 if __name__ == "__main__":
