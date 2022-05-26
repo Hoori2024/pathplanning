@@ -47,11 +47,24 @@ def parse_input_file(filepath: str):
     return vertices_polygon
 
 
-def are_segments_secant() -> bool: # TODO: J + R
+def are_segments_secant(A, B, C, D) -> (float, float):
     """
-        Check if the segments are secant
+        Check if the segments [AB] and [CD] are secant
+        Segments are on the form (x, y)
+        Return None if not secant
     """
-    return False
+    I = (B[0] - A[0], B[1] - A[1])
+    J = (D[0] - C[0], D[1] - C[1])
+    m = -1
+    k = -1
+    d = I[0] * J[1] - I[1] * J[0]
+
+    if d != 0:
+        m = (I[0] * A[1] - I[0] * C[1] - I[1] * A[0] + I[1] * C[0]) / d
+        k = (J[0] * A[1] - J[0] * C[1] - J[1] * A[0] + J[1] * C[0]) / d
+    if m >= 0 and m <= 1 and k >= 0 and k <= 1:
+        return (C[0] + m * J[0], C[1] + m * J[1])
+    return None
 
 
 def get_distance_between_segments(segment1, segment2) -> float:
