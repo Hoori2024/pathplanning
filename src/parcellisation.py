@@ -6,6 +6,7 @@
 """
 
 from enum import Enum
+from typing import Tuple
 import sys
 
 from parsing import fill_list_vertices
@@ -47,7 +48,7 @@ def parse_input_file(filepath: str):
     return vertices_polygon
 
 
-def are_segments_secant(A, B, C, D) -> (float, float):
+def are_segments_secant(A, B, C, D) -> Tuple[float, float]:
     """
         Check if the segments [AB] and [CD] are secant
         Segments are on the form (x, y)
@@ -95,41 +96,41 @@ class Field:
         return f"Field: {self.limits}"
 
 
-class Cell:
-    """
-        class Cell: (à modifier)
-    """
+    class Cell:
+        """
+            class Cell: (à modifier)
+        """
 
-    class CellType(Enum):
-        """
-            class CellType: (à modifier)
-        """
-        COMPLETELY_INSIDE = 0
-        CENTER_INSIDE = 1
-        CENTER_OUTSIDE = 2
-        COMPLETELY_OUTSIDE = 3
+        class CellType(Enum):
+            """
+                class CellType: (à modifier)
+            """
+            COMPLETELY_INSIDE = 0
+            CENTER_INSIDE = 1
+            CENTER_OUTSIDE = 2
+            COMPLETELY_OUTSIDE = 3
+
+            def __str__(self):
+                return self.name
+
+            def __repr__(self):
+                return self.name
+
+
+        def __init__(self, center):
+            """ center: the coordinates of the center """
+            self.center = center
+            self.vertices = ... #TODO
+            self.type = ... # TODO
 
         def __str__(self):
-            return self.name
+            return f"Cell({self.center})"
 
         def __repr__(self):
-            return self.name
+            return f"Cell({self.center})"
 
 
-    def __init__(self, center):
-        """ center: the coords of the center """
-        self.center = center
-        self.vertices = ... #TODO
-        self.type = ... # TODO
-
-    def __str__(self):
-        return f"Cell({self.center})"
-
-    def __repr__(self):
-        return f"Cell({self.center})"
-
-
-def main() -> None:
+def main() -> int:
     """
         Main function.
     """
@@ -138,6 +139,7 @@ def main() -> None:
     if '-h' in sys.argv or '--help' in sys.argv:
         display_usage_and_exit(0)
     print(parse_input_file(sys.argv[1]))
+    sys.exit(0)
 
 
 if __name__ == "__main__":
