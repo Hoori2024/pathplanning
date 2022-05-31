@@ -81,6 +81,56 @@ class Field:
         class Field: (à modifier)
     """
 
+    class Cell:
+        """
+            class Cell: cell of the field, expect position of the center of the cell
+        """
+
+
+        class CellType(Enum):
+            """
+                class CellType: cell type defined by the position on the map and the position of the field's edges
+            """
+            COMPLETLY_INSIDE = 0
+            CENTER_INSIDE = 1
+            CENTER_OUTSIDE = 2
+            COMPLETLY_OUTSIDE = 3
+
+            def __str__(self):
+                return self.name
+
+            def __repr__(self):
+                return self.name
+
+
+        def __init__(self, center):
+            """ center: the coordinates of the center """
+            self.center = center
+            self.vertices = []
+            self.type = self.CellType.COMPLETLY_INSIDE
+
+            for i in range(2):
+                for j in range(2):
+                    self.vertices.append((center[0] - 0.5 + i, center[1] - 0.5 + j))
+
+
+        def __str__(self):
+            string = f"Cell("
+            string += f'center: {self.center}, '
+            string += f'vertices: {self.vertices}, '
+            string += f'type: {self.type}'
+            string += ')'
+            return string
+
+
+        def __repr__(self):
+            return str(self)
+
+
+        def set_type(self, type):
+            self.type = type
+
+
     def __init__(self, list_edges):
         """
             list_edges: list of the field's edges (as list of lists of segments)
@@ -94,7 +144,7 @@ class Field:
         self.max_pos_x = ceil(self.edges[0][0][0])
         self.min_pos_y = floor(self.edges[0][0][1])
         self.max_pos_y = ceil(self.edges[0][0][1])
-        self.field = []
+        self.cells = []
 
         for j in self.edges:
             for i in j:
@@ -108,46 +158,53 @@ class Field:
                     self.max_pos_y = ceil(i[1])
 
         for i in range(self.min_pos_x, self.max_pos_x):
+            line = []
             for j in range(self.min_pos_y, self.max_pos_y):
-                self.field.append(self.Cell((i + 0.5, j + 0.5)))
+                line.append(self.Cell((i + 0.5, j + 0.5)))
+            self.cells.append(line)
 
-        self.refresh_type()
+        self.refresh_cells_types()
 
 
     def __str__(self):
         string = f"Edges: {self.edges}\n"
         string += "Cells:\n"
-        for cell in self.field:
-            string += (str(cell) + '\n')
+        for line in self.cells:
+            for cell in line:
+                string += (str(cell) + '\n')
+            string += '---\n'
         return string
 
 
     def __repr__(self):
         string = f"edges: {self.edges}\n"
         string += "field:\n"
-        for cell in self.field:
-            string += (repr(cell) + '\n')
+        for line in self.cells:
+            for cell in line:
+                string += (repr(cell) + '\n')
+            string += '---\n'
         return string
 
 
-    def refresh_type(self):
+    def refresh_cells_types(self):
         """
             actualize types of every cells
         """
-        for i in self.field:
-            if self.is_cell_in(i) == True:
-                if self.is_cell_on_edge(i) == True:
-                    i.set_type(i.CellType.CENTER_INSIDE)
+        for line in self.cells:
+            for cell in line:
+                if self.is_cell_center_in(cell) == True:
+                    if self.is_cell_on_edge(cell) == True:
+                        cell.set_type(cell.CellType.CENTER_INSIDE)
+                    else:
+                        cell.set_type(cell.CellType.COMPLETLY_INSIDE)
                 else:
-                    i.set_type(i.CellType.COMPLETLY_INSIDE)
-            else:
-                if self.is_cell_on_edge(i) == True:
-                    i.set_type(i.CellType.CENTER_OUTSIDE)
-                else:
-                    i.set_type(i.CellType.COMPLETLY_OUTSIDE)
+                    if self.is_cell_on_edge(cell) == True:
+                        cell.set_type(cell.CellType.CENTER_OUTSIDE)
+                    else:
+                        cell.set_type(cell.CellType.COMPLETLY_OUTSIDE)
 
 
-    def is_cell_in(self, cell):
+    def is_cell_center_in(self, cell):
         """
             check if a cell center is in or out of the edges
         """
@@ -178,46 +235,19 @@ class Field:
         return False
 
 
-    class Cell:
+    def arrange_cells(self):
         """
-            class Cell: cell of the field, expect position of the center of the cell
+            Filters and shifts the cells so the field contains only cells with
+            their center inside of it.
         """
+        # Shifting the cell's coordinates:
 
-        class CellType(Enum):
-            """
-                class CellType: cell type defined by the position on the map and the position of the field's edges
-            """
-            COMPLETLY_INSIDE = 0
-            CENTER_INSIDE = 1
-            CENTER_OUTSIDE = 2
-            COMPLETLY_OUTSIDE = 3
-
-            def __str__(self):
-                return self.name
-
-            def __repr__(self):
-                return self.name
-
-
-        def __init__(self, center):
-            """ center: the coordinates of the center """
-            self.center = center
-            self.vertices = []
-            self.type = self.CellType.COMPLETLY_INSIDE
-
-            for i in range(2):
-                for j in range(2):
-                    self.vertices.append((center[0] - 0.5 + i, center[1] - 0.5 + j))
-
-
-        def __str__(self):
-            return f"Cell({self.center})"
-        def __repr__(self):
-            return f"Cell({self.center})"
-
-
-        def set_type(self, type):
-            self.type = type
+        # Removing the cells completely outside:
+        new_cells_list = []
+        for line in self.cells:
+            filtered_line = filter(lambda cell: cell.type != self.Cell.CellType.COMPLETLY_OUTSIDE, line)
+            new_cells_list.append(filtered_line)
+        self.cells = new_cells_list
 
 
 def main() -> int:
@@ -228,9 +258,16 @@ def main() -> int:
         display_usage_and_exit(84)
     if '-h' in sys.argv or '--help' in sys.argv:
         display_usage_and_exit(0)
-    print(parse_input_file(sys.argv[1]))
+    print()
+    edges = parse_input_file(sys.argv[1])
+    print(edges)
 
-    f = Field(parse_input_file(sys.argv[1]))
+    f = Field(edges)
+    print()
+    print(f)
+
+    f.arrange_cells()
+    print()
     print(f)
 
     sys.exit(0)
