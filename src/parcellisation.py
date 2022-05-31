@@ -2,7 +2,7 @@
 #encoding:utf-8
 
 """
-    pathplanning.py (à modifier)
+    pathplanning.py
 """
 
 from enum import Enum
@@ -81,22 +81,22 @@ class Field:
         class Field: (à modifier)
     """
 
-    def __init__(self, list_limits):
+    def __init__(self, list_edges):
         """
-            list_limits: list of the field's limits (as list of list of segments)
+            list_edges: list of the field's edges (as list of lists of segments)
         """
-        self.limits = []
-        for i in list_limits:
+        self.edges = []
+        for i in list_edges:
             for j in range(len(i)):
-                self.limits.append((i[j], i[(j + 1) % len(i)]))
+                self.edges.append((i[j], i[(j + 1) % len(i)]))
 
-        self.min_pos_x = floor(self.limits[0][0][0])
-        self.max_pos_x = ceil(self.limits[0][0][0])
-        self.min_pos_y = floor(self.limits[0][0][1])
-        self.max_pos_y = ceil(self.limits[0][0][1])
+        self.min_pos_x = floor(self.edges[0][0][0])
+        self.max_pos_x = ceil(self.edges[0][0][0])
+        self.min_pos_y = floor(self.edges[0][0][1])
+        self.max_pos_y = ceil(self.edges[0][0][1])
         self.field = []
 
-        for j in self.limits:
+        for j in self.edges:
             for i in j:
                 if i[0] < floor(self.min_pos_x):
                     self.min_pos_x = floor(i[0])
@@ -113,11 +113,22 @@ class Field:
 
         self.refresh_type()
 
+
     def __str__(self):
-        return f"Field: {self.limits}"
+        string = f"Edges: {self.edges}\n"
+        string += "Cells:\n"
+        for cell in self.field:
+            string += (str(cell) + '\n')
+        return string
+
 
     def __repr__(self):
-        return f"Field: {self.limits}"
+        string = f"edges: {self.edges}\n"
+        string += "field:\n"
+        for cell in self.field:
+            string += (repr(cell) + '\n')
+        return string
+
 
     def refresh_type(self):
         """
@@ -125,43 +136,47 @@ class Field:
         """
         for i in self.field:
             if self.is_cell_in(i) == True:
-                if self.is_cell_on_limit(i) == True:
+                if self.is_cell_on_edge(i) == True:
                     i.set_type(i.CellType.CENTER_INSIDE)
                 else:
                     i.set_type(i.CellType.COMPLETLY_INSIDE)
             else:
-                if self.is_cell_on_limit(i) == True:
+                if self.is_cell_on_edge(i) == True:
                     i.set_type(i.CellType.CENTER_OUTSIDE)
                 else:
                     i.set_type(i.CellType.COMPLETLY_OUTSIDE)
 
+
     def is_cell_in(self, cell):
         """
-            check if a cell center is in or out of the limits
+            check if a cell center is in or out of the edges
         """
-        if self.count_secant_limit_with_segment((cell.center, (cell.center[0], self.max_pos_y))) % 2 == 1:
+        if self.count_secant_edge_with_segment((cell.center, (cell.center[0], self.max_pos_y))) % 2 == 1:
             return True
         return False
 
-    def count_secant_limit_with_segment(self, segment):
+
+    def count_secant_edge_with_segment(self, segment):
         """
-            count the number of limits secants with a segment
+            count the number of edges secants with a segment
         """
         count = 0
-        for i in self.limits:
+        for i in self.edges:
             if are_segments_secant(segment[0], segment[1], i[0], i[1]) != None:
                 count += 1
         return count
 
-    def is_cell_on_limit(self, cell):
+
+    def is_cell_on_edge(self, cell):
         """
-            check if a cell is on a limit of the field
+            check if a cell is on a edge of the field
         """
         for i in range(4):
-            for j in self.limits:
+            for j in self.edges:
                 if are_segments_secant(cell.vertices[i], cell.vertices[(i + 1) % 4], j[0], j[1]) != None:
                     return True
         return False
+
 
     class Cell:
         """
@@ -170,7 +185,7 @@ class Field:
 
         class CellType(Enum):
             """
-                class CellType: cell type defined by the position on the map and the position of the field's limits
+                class CellType: cell type defined by the position on the map and the position of the field's edges
             """
             COMPLETLY_INSIDE = 0
             CENTER_INSIDE = 1
@@ -183,6 +198,7 @@ class Field:
             def __repr__(self):
                 return self.name
 
+
         def __init__(self, center):
             """ center: the coordinates of the center """
             self.center = center
@@ -193,11 +209,12 @@ class Field:
                 for j in range(2):
                     self.vertices.append((center[0] - 0.5 + i, center[1] - 0.5 + j))
 
+
         def __str__(self):
             return f"Cell({self.center})"
-
         def __repr__(self):
             return f"Cell({self.center})"
+
 
         def set_type(self, type):
             self.type = type
@@ -214,6 +231,7 @@ def main() -> int:
     print(parse_input_file(sys.argv[1]))
 
     f = Field(parse_input_file(sys.argv[1]))
+    print(f)
 
     sys.exit(0)
 
