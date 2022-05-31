@@ -38,8 +38,11 @@ def parse_input_file(filepath: str):
     try:
         with open(filepath, "r", encoding="utf8") as file:
             lines: list(str) = file.readlines()
-    except FileNotFoundError:
+    except (FileNotFoundError):
         print("File not found")
+        sys.exit(84)
+    if len(lines) == 0:
+        print("File is empty")
         sys.exit(84)
     vertices_polygon = fill_list_vertices(lines)
 
@@ -128,6 +131,9 @@ class Field:
 
 
         def set_type(self, type):
+            """
+                Set the type of the cell
+            """
             self.type = type
 
 
