@@ -7,6 +7,7 @@
 
 from enum import Enum
 from typing import Tuple
+from math import floor, ceil
 import sys
 
 from parsing import fill_list_vertices
@@ -79,15 +80,38 @@ class Field:
     """
         class Field: (à modifier)
     """
+
     def __init__(self, list_limits):
         """
             list_limits: list of the field's limits (as list of list of segments)
         """
-        self.limits = list_limits
-        self.min_pos_x = None
-        self.max_pos_x = None
-        self.min_pos_y = None
-        self.max_pos_y = None
+        self.limits = []
+        for i in list_limits:
+            for j in range(len(i)):
+                self.limits.append((i[j], i[(j + 1) % len(i)]))
+
+        self.min_pos_x = floor(self.limits[0][0][0])
+        self.max_pos_x = ceil(self.limits[0][0][0])
+        self.min_pos_y = floor(self.limits[0][0][1])
+        self.max_pos_y = ceil(self.limits[0][0][1])
+        self.field = []
+
+        for j in self.limits:
+            for i in j:
+                if i[0] < floor(self.min_pos_x):
+                    self.min_pos_x = floor(i[0])
+                elif i[0] > ceil(self.max_pos_x):
+                    self.max_pos_x = ceil(i[0])
+                if i[1] < floor(self.min_pos_y):
+                     self.min_pos_y = floor(i[1])
+                elif i[1] > ceil(self.max_pos_y):
+                    self.max_pos_y = ceil(i[1])
+
+        for i in range(self.min_pos_x, self.max_pos_x):
+            for j in range(self.min_pos_y, self.max_pos_y):
+                self.field.append(self.Cell((i + 0.5, j + 0.5)))
+
+        self.refresh_type()
 
     def __str__(self):
         return f"Field: {self.limits}"
@@ -95,20 +119,63 @@ class Field:
     def __repr__(self):
         return f"Field: {self.limits}"
 
+    def refresh_type(self):
+        """
+            actualize types of every cells
+        """
+        for i in self.field:
+            if self.is_cell_in(i) == True:
+                if self.is_cell_on_limit(i) == True:
+                    i.set_type(i.CellType.CENTER_INSIDE)
+                else:
+                    i.set_type(i.CellType.COMPLETLY_INSIDE)
+            else:
+                if self.is_cell_on_limit(i) == True:
+                    i.set_type(i.CellType.CENTER_OUTSIDE)
+                else:
+                    i.set_type(i.CellType.COMPLETLY_OUTSIDE)
+
+    def is_cell_in(self, cell):
+        """
+            check if a cell center is in or out of the limits
+        """
+        if self.count_secant_limit_with_segment((cell.center, (cell.center[0], self.max_pos_y))) % 2 == 1:
+            return True
+        return False
+
+    def count_secant_limit_with_segment(self, segment):
+        """
+            count the number of limits secants with a segment
+        """
+        count = 0
+        for i in self.limits:
+            if are_segments_secant(segment[0], segment[1], i[0], i[1]) != None:
+                count += 1
+        return count
+
+    def is_cell_on_limit(self, cell):
+        """
+            check if a cell is on a limit of the field
+        """
+        for i in range(4):
+            for j in self.limits:
+                if are_segments_secant(cell.vertices[i], cell.vertices[(i + 1) % 4], j[0], j[1]) != None:
+                    return True
+        return False
 
     class Cell:
         """
-            class Cell: (à modifier)
+            class Cell: cell of the field, expect position of the center of the cell
         """
 
         class CellType(Enum):
             """
-                class CellType: (à modifier)
+                class CellType: cell type defined by the position on the map and the position of the field's limits
             """
-            COMPLETELY_INSIDE = 0
+            COMPLETLY_INSIDE = 0
             CENTER_INSIDE = 1
             CENTER_OUTSIDE = 2
-            COMPLETELY_OUTSIDE = 3
+            COMPLETLY_OUTSIDE = 3
 
             def __str__(self):
                 return self.name
@@ -116,18 +183,24 @@ class Field:
             def __repr__(self):
                 return self.name
 
-
         def __init__(self, center):
             """ center: the coordinates of the center """
             self.center = center
-            self.vertices = ... #TODO
-            self.type = ... # TODO
+            self.vertices = []
+            self.type = self.CellType.COMPLETLY_INSIDE
+
+            for i in range(2):
+                for j in range(2):
+                    self.vertices.append((center[0] - 0.5 + i, center[1] - 0.5 + j))
 
         def __str__(self):
             return f"Cell({self.center})"
 
         def __repr__(self):
             return f"Cell({self.center})"
+
+        def set_type(self, type):
+            self.type = type
 
 
 def main() -> int:
@@ -139,6 +212,9 @@ def main() -> int:
     if '-h' in sys.argv or '--help' in sys.argv:
         display_usage_and_exit(0)
     print(parse_input_file(sys.argv[1]))
+
+    f = Field(parse_input_file(sys.argv[1]))
+
     sys.exit(0)
 
 
