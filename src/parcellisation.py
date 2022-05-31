@@ -31,6 +31,7 @@ def parse_input_file(filepath: str):
     # TODO:
     # - check if every polygon has at least 3 vertices - OK
     # - vérifier qu'un polygone n'ait pas plusieurs sommets confondus - OK
+    # - vérifier qu'un polygone n'ait pas des côtés qui se croisent
     # - vérifier que les polygones enfants soient tous dans le polygone parent
     # - vérifier qu'un polygone enfant ne soit pas dans un autre polygone enfant
 
