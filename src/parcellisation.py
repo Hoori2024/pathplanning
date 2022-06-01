@@ -99,6 +99,7 @@ class Field:
             CENTER_INSIDE = 1
             CENTER_OUTSIDE = 2
             COMPLETLY_OUTSIDE = 3
+            CENTER_ON_EDGE = 4
 
             def __str__(self):
                 return self.name
@@ -204,18 +205,25 @@ class Field:
                         cell.set_type(cell.CellType.CENTER_INSIDE)
                     else:
                         cell.set_type(cell.CellType.COMPLETLY_INSIDE)
-                else:
+                elif self.is_cell_center_in(cell) == False:
                     if self.is_cell_on_edge(cell) == True:
                         cell.set_type(cell.CellType.CENTER_OUTSIDE)
                     else:
                         cell.set_type(cell.CellType.COMPLETLY_OUTSIDE)
+                else:
+                    cell.set_type(cell.CellType.CENTER_ON_EDGE)
 
 
     def is_cell_center_in(self, cell):
         """
             check if a cell center is in or out of the edges
         """
-        if self.count_secant_edge_with_segment((cell.center, (cell.center[0], self.max_pos_y))) % 2 == 1:
+        if self.count_secant_edge_with_segment((cell.center, (cell.center[0], self.max_pos_y))) % 2 == 1 or self.count_secant_edge_with_segment((cell.center, (self.max_pos_x, cell.center[1]))) % 2 == 1:
+            for i in self.edges:
+                pos_sec_y = are_segments_secant(cell.center, (cell.center[0], self.max_pos_y), i[0], i[1])
+                pos_sec_x = are_segments_secant(cell.center, (self.max_pos_x, cell.center[1]), i[0], i[1])
+                if pos_sec_y == cell.center or pos_sec_x == cell.center:
+                    return None
             return True
         return False
 
@@ -237,7 +245,8 @@ class Field:
         """
         for i in range(4):
             for j in self.edges:
-                if are_segments_secant(cell.vertices[i], cell.vertices[(i + 1) % 4], j[0], j[1]) != None:
+                pos = are_segments_secant(cell.vertices[i], cell.vertices[(i + 1) % 4], j[0], j[1])
+                if pos != None and pos[0] % 1 != 0 and pos[1] % 1 != 0:
                     return True
         return False
 
