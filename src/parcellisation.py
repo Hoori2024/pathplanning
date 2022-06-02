@@ -6,11 +6,15 @@
 """
 
 from enum import Enum
-from typing import Tuple
+from typing import List, Tuple
 from math import floor, ceil
 import sys
 
-from parsing import fill_list_vertices
+from parsing import fill_list_edges
+
+
+Vertex = Tuple[float, float]
+Edge = Tuple[Vertex, Vertex]
 
 
 def display_usage_and_exit(exit_code: int) -> None:
@@ -22,7 +26,7 @@ def display_usage_and_exit(exit_code: int) -> None:
     sys.exit(exit_code)
 
 
-def parse_input_file(filepath: str):
+def parse_input_file(filepath: str) -> List[List[Vertex]]:
     """
         (0; 0.2) (0; -1) (3.8; 5) (0; 4)
         (2; 3) (3; 2.9) (2; 4)
@@ -35,29 +39,36 @@ def parse_input_file(filepath: str):
     # - vérifier que les polygones enfants soient tous dans le polygone parent
     # - vérifier qu'un polygone enfant ne soit pas dans un autre polygone enfant
 
-    vertices_polygon: list(list(tuple(float))) = []
+    polygons: List[List[Vertex]] = [] # List of polygons (polygon = list of its vertices)
     try:
         with open(filepath, "r", encoding="utf8") as file:
-            lines: list(str) = file.readlines()
+            lines: List[str] = file.readlines()
     except (FileNotFoundError):
         print("File not found")
         sys.exit(84)
     if len(lines) == 0:
         print("File is empty")
         sys.exit(84)
-    vertices_polygon = fill_list_vertices(lines)
+    polygons = fill_list_edges(lines)
 
-    if len(vertices_polygon[0]) < 3:
+    if len(polygons[0]) < 3:
         print("Not enough vertices")
         sys.exit(84)
-    return vertices_polygon
+    return polygons
 
 
-def are_segments_secant(A, B, C, D) -> Tuple[float, float]:
+def list_of_vertices_to_list_of_edges(vertices: List[Vertex]) -> List[Edge]:
+    edges = []
+    for idx_vertex in range(len(vertices)):
+        edges.append((vertices[idx_vertex], vertices[(idx_vertex + 1) % len(vertices)]))
+    return edges
+
+
+def are_segments_secant(A: Vertex, B: Vertex, C: Vertex, D: Vertex) -> Vertex:
     """
-        Check if the segments [AB] and [CD] are secant
-        Segments are on the form (x, y)
-        Return None if not secant
+        Checks if the segments [AB] and [CD] are secant
+        Segments are on the form (x, y).
+        Returns the coordinates of the intersection, or None if not secant.
     """
     I = (B[0] - A[0], B[1] - A[1])
     J = (D[0] - C[0], D[1] - C[1])
@@ -75,9 +86,25 @@ def are_segments_secant(A, B, C, D) -> Tuple[float, float]:
 
 def get_distance_between_segments(segment1, segment2) -> float:
     """
-        Get the distance between two segments
+        Get the min distance between two segments
     """
     return ((segment1[0] - segment2[0]) ** 2 + (segment1[1] - segment2[1]) ** 2) ** 0.5
+
+
+class Direction(Enum):
+            """
+                class Direction: represents directions that can be taken from a cell
+            """
+            UP = 0
+            RIGHT = 1
+            DOWN = 2
+            LEFT = 3
+
+            def __str__(self):
+                return self.name
+
+            def __repr__(self):
+                return self.name
 
 
 class Field:
@@ -110,13 +137,22 @@ class Field:
 
         def __init__(self, center):
             """ center: the coordinates of the center """
-            self.center = center
-            self.vertices = []
+            self.center: Vertex = center
+            self.vertices: List[Vertex] = []
             self.type = self.CellType.COMPLETLY_INSIDE
 
-            for i in range(2):
-                for j in range(2):
-                    self.vertices.append((center[0] - 0.5 + i, center[1] - 0.5 + j))
+            # Determining the cell's vertices /!\ clockwise from top-left /!\
+            # (important for determining the edges and their directions)
+            self.vertices.append((center[0] - 0.5, center[1] + 0.5))
+            self.vertices.append((center[0] + 0.5, center[1] + 0.5))
+            self.vertices.append((center[0] + 0.5, center[1] - 0.5))
+            self.vertices.append((center[0] - 0.5, center[1] - 0.5))
+
+            # Determining its edges and their directions:
+            self.edges: List[Tuple[Direction, Edge]] = []
+            edge_list = list_of_vertices_to_list_of_edges(self.vertices)
+            for idx, edge in enumerate(edge_list):
+                self.edges.append((idx, edge))
 
 
         def __str__(self):
@@ -139,14 +175,14 @@ class Field:
             self.type = type
 
 
-    def __init__(self, list_edges):
+    def __init__(self, polygons: List[List[Vertex]]):
         """
-            list_edges: list of the field's edges (as list of lists of segments)
+            polygons: list of the field's polygons (polygon = list of vertices)
         """
-        self.edges = []
-        for i in list_edges:
-            for j in range(len(i)):
-                self.edges.append((i[j], i[(j + 1) % len(i)]))
+        self.edges: List[Edge] = []
+        for polygon in polygons:
+            new_edges = list_of_vertices_to_list_of_edges(polygon)
+            self.edges += new_edges
 
         self.min_pos_x = floor(self.edges[0][0][0])
         self.max_pos_x = ceil(self.edges[0][0][0])
@@ -256,7 +292,25 @@ class Field:
             Filters and shifts the cells so the field contains only cells with
             their center inside of it.
         """
-        # Shifting the cell's coordinates:
+
+        for line_nb, line in enumerate(self.cells):
+            for col_nb, cell in enumerate(line):
+                # We only shift `CENTER_OUTSIDE` cells
+                if cell.type != self.Cell.CellType.CENTER_OUTSIDE:
+                    continue
+
+                # Determining which directions we could shift (only towards
+                # `CENTER_INSIDE` and `COMPLETELY_INSIDE` cells)
+                surrounding_cells = self.get_surrounding_cells(line_nb, col_nb)
+                shift_ok_cells = filter(lambda cell: cell[1].type == self.Cell.CellType.COMPLETLY_INSIDE
+                    or cell.type == self.Cell.CellType.CENTER_INSIDE, surrounding_cells)
+                
+                # Getting the points of intersection with the field's edges:
+                pt_intersect = self.get_pt_intersect_for_cell(cell)
+
+                # Shifting the cell vertically if needed:
+
+                # Shifting the cell horizontally if needed:
 
         # Removing the cells completely outside:
         new_cells_list = []
@@ -264,6 +318,39 @@ class Field:
             filtered_line = filter(lambda cell: cell.type != self.Cell.CellType.COMPLETLY_OUTSIDE, line)
             new_cells_list.append(filtered_line)
         self.cells = new_cells_list
+
+
+    def get_surrounding_cells(self, line_nb: int, col_nb: int) -> List[Tuple[Direction, Cell]]:
+        """
+            Returns a list of tuples containing info on the cells surrounding the cell
+            with the given indexes, in the following directions: up, right, down, left.
+            The info includes the direction and the cell.
+        """
+        surrounding_cells = []
+        if line_nb > 0:
+            surrounding_cells.append(Direction.UP, (self.cells[line_nb - 1][col_nb]))
+        if line_nb < len(self.cells) - 1:
+            surrounding_cells.append(Direction.DOWN, (self.cells[line_nb + 1][col_nb]))
+        if col_nb > 0:
+            surrounding_cells.append(Direction.LEFT, (self.cells[line_nb][col_nb - 1]))
+        if col_nb < len(self.cells[0]) - 1:
+            surrounding_cells.append(Direction.RIGHT, (self.cells[line_nb][col_nb + 1]))
+        return surrounding_cells
+
+
+    def get_pt_intersect_for_cell(self, cell: Cell) -> List[Tuple[Direction, Vertex]]:
+        """
+            Returns a list of tuples containing info on the points of intersection
+            of the field's edges and the given cell's edges.
+            The info includes the direction and the coordinates of the point.
+        """
+        pt_intersect_list = []
+        for (direction, cell_edge) in cell.edges:
+            for field_edge in self.edges:
+                pt_intersect = are_segments_secant(cell_edge[0], cell_edge[1], field_edge[0], field_edge[1])
+                if pt_intersect is not None:
+                    pt_intersect_list.append((direction, pt_intersect))
+        return pt_intersect_list
 
 
 def main() -> int:
@@ -275,16 +362,16 @@ def main() -> int:
     if '-h' in sys.argv or '--help' in sys.argv:
         display_usage_and_exit(0)
     print()
-    edges = parse_input_file(sys.argv[1])
-    print(edges)
+    polyons: List[List[Vertex]] = parse_input_file(sys.argv[1])
+    print(polyons)
 
-    f = Field(edges)
+    f = Field(polyons)
     print()
     print(f)
 
-    f.arrange_cells()
-    print()
-    print(f)
+    # f.arrange_cells()
+    # print()
+    # print(f)
 
     sys.exit(0)
 
