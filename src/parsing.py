@@ -7,13 +7,19 @@
 
 import sys
 
+from typing import Tuple, List
+
+
+Coords = Tuple[float, float]
+
+
 def fill_list_vertices(lines):
     """
         Fill list of vertices verifing if there are not the same vertices in file
     """
-    vertices_polygon: list(list(tuple(float))) = []
+    vertices_polygon: list(list(Coords)) = []
     for line in lines:
-        stock_vertice: list(tuple(float)) = []
+        stock_vertice: list(Coords) = []
         line = line.replace("(", "").replace(" ", "").replace("\n", "")
         for elem in line.split(")"):
             if elem != "":
@@ -28,6 +34,7 @@ def fill_list_vertices(lines):
         vertices_polygon.append(stock_vertice)
     return vertices_polygon
 
+
 def check_if_vertices_in_polygon(vertices_polygon, vertice): # TODO: S
     """
         Check if the vertice is in the polygon
@@ -35,6 +42,7 @@ def check_if_vertices_in_polygon(vertices_polygon, vertice): # TODO: S
     list(vertices_polygon)
     list(vertice)
     return False
+
 
 def check_if_child_in_parent(child, parent): # TODO: S
     """
