@@ -2,7 +2,7 @@
 # encoding:utf-8
 
 """
-    pathplanning.py
+    parcellisation.py
 """
 
 from enum import Enum
