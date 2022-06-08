@@ -2,7 +2,7 @@
 #encoding:utf-8
 
 """
-    pathplanning.py
+    parcellisation.py
 """
 
 from enum import Enum
@@ -92,19 +92,19 @@ def get_distance_between_segments(segment1, segment2) -> float:
 
 
 class Direction(Enum):
-            """
-                class Direction: represents directions that can be taken from a cell
-            """
-            UP = 0
-            RIGHT = 1
-            DOWN = 2
-            LEFT = 3
+    """
+        class Direction: represents directions that can be taken from a cell
+    """
+    UP = 0
+    RIGHT = 1
+    DOWN = 2
+    LEFT = 3
 
-            def __str__(self):
-                return self.name
+    def __str__(self):
+        return self.name
 
-            def __repr__(self):
-                return self.name
+    def __repr__(self):
+        return self.name
 
 
 class Field:
