@@ -1,13 +1,20 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
+VERSION = '0.0.1' 
+DESCRIPTION = 'Hoori pathplanning'
+LONG_DESCRIPTION = 'Hoori pathplanning'
+
+# Setting up
 setup(
-   name='pathplanning',
-   version='0.1.0',
-   author='Hoori',
-   author_email='justine.fricou@epitech.eu',
-   packages=['pathplanning'],
-   description='Pathplanning',
-   install_requires=[
-       "pytest",
-   ],
+       # the name must match the folder name
+        name="pathplanning",
+        version=VERSION,
+        author="Hoori",
+        author_email="<justine.fricou@epitech.eu>",
+        description=DESCRIPTION,
+        long_description=LONG_DESCRIPTION,
+        packages=find_packages(),
+        install_requires=[],
+        
+        keywords=['python', 'pathplanning']
 )
