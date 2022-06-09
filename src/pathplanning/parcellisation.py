@@ -11,6 +11,7 @@ from math import floor, ceil
 import sys
 
 from src.pathplanning.parsing import fill_list_edges, are_segments_secant
+from src.pathplanning.visualisation import *
 
 
 Vertex = Tuple[float, float]
@@ -360,6 +361,8 @@ def main() -> int:
     # f.arrange_cells()
     # print()
     # print(f)
+
+    display_field(f)
 
     sys.exit(0)
 
