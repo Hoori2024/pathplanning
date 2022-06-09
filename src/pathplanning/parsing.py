@@ -184,9 +184,8 @@ def check_if_vertex_in_polygon(polygon: List[Edge], vertex: Vertex) -> bool:
         Check if a vertex is in a polygon
         return True if the vertex is in the polygon
     """
-    # TODO: fix outside x only
-    max_pos_x: float = get_max_pos_x(polygon)
-    max_pos_y: float = get_max_pos_y(polygon)
+    max_pos_x: float = get_max_pos_x(polygon) + 0.5
+    max_pos_y: float = get_max_pos_y(polygon) + 0.5
 
     if count_secant_edge_with_segment(polygon, (vertex, (vertex[0], max_pos_y))) % 2 == 1 or\
             count_secant_edge_with_segment(polygon, (vertex, (max_pos_x, vertex[1]))) % 2 == 1:
@@ -196,7 +195,7 @@ def check_if_vertex_in_polygon(polygon: List[Edge], vertex: Vertex) -> bool:
             pos_sec_x = are_segments_secant(
                 vertex, (max_pos_x, vertex[1]), i[0], i[1])
             if vertex in (pos_sec_y, pos_sec_x):
-                return None
+                return False
         return True
     return False
 
