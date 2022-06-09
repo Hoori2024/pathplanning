@@ -52,10 +52,6 @@ def parse_input_file(filepath: str) -> List[List[Vertex]]:
         print("File is empty")
         sys.exit(84)
     polygons = fill_list_edges(lines)
-
-    if len(polygons[0]) < 3:
-        print("Not enough vertices")
-        sys.exit(84)
     return polygons
 
 
@@ -261,7 +257,8 @@ class Field:
             for j in self.edges:
                 pos = are_segments_secant(
                     cell.vertices[i], cell.vertices[(i + 1) % 4], j[0], j[1])
-                coef_dir_a = self.compute_lead_coef((cell.vertices[i], cell.vertices[(i + 1) % 4]))
+                coef_dir_a = self.compute_lead_coef(
+                    (cell.vertices[i], cell.vertices[(i + 1) % 4]))
                 coef_dir_b = self.compute_lead_coef((j[0], j[1]))
                 if pos != None and coef_dir_a != coef_dir_b and pos != cell.vertices[i] and pos != cell.vertices[(i + 1) % 4] and pos != j[0] and pos != j[1]:
                     return True
