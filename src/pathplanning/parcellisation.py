@@ -10,7 +10,7 @@ from typing import List, Tuple
 from math import floor, ceil
 import sys
 
-from parsing import fill_list_edges, are_segments_secant
+from src.pathplanning.parsing import fill_list_edges, are_segments_secant
 
 
 Vertex = Tuple[float, float]
@@ -226,14 +226,10 @@ class Field:
         """
             check if a cell center is in or out of the edges
         """
+        for i in self.edges:
+            if self.compute_lead_coef((i[0], cell.center)) == self.compute_lead_coef((cell.center, i[1])) and cell.center[0] >= min(i[0][0], i[1][0]) and cell.center[0] <= max(i[0][0], i[1][0]) and cell.center[1] >= min(i[0][1], i[1][1]) and cell.center[1] <= max(i[0][1], i[1][1]) or cell.center == i[0] or cell.center == i[1]:
+                return None
         if self.count_secant_edge_with_segment((cell.center, (cell.center[0], self.max_pos_y))) % 2 == 1 or self.count_secant_edge_with_segment((cell.center, (self.max_pos_x, cell.center[1]))) % 2 == 1:
-            for i in self.edges:
-                pos_sec_y = are_segments_secant(
-                    cell.center, (cell.center[0], self.max_pos_y), i[0], i[1])
-                pos_sec_x = are_segments_secant(
-                    cell.center, (self.max_pos_x, cell.center[1]), i[0], i[1])
-                if pos_sec_y == cell.center or pos_sec_x == cell.center:
-                    return None
             return True
         return False
 
@@ -247,6 +243,15 @@ class Field:
                 count += 1
         return count
 
+    def compute_lead_coef(self, segment):
+        """
+            compute leading coefficient of a segment
+        """
+        x = segment[0][0] - segment[1][0]
+        if x == 0:
+            return None
+        return (segment[0][1] - segment[1][1]) / x
+
     def is_cell_on_edge(self, cell):
         """
             check if a cell is on a edge of the field
@@ -255,7 +260,9 @@ class Field:
             for j in self.edges:
                 pos = are_segments_secant(
                     cell.vertices[i], cell.vertices[(i + 1) % 4], j[0], j[1])
-                if pos != None and pos[0] % 1 != 0 and pos[1] % 1 != 0:
+                coef_dir_a = self.compute_lead_coef((cell.vertices[i], cell.vertices[(i + 1) % 4]))
+                coef_dir_b = self.compute_lead_coef((j[0], j[1]))
+                if pos != None and coef_dir_a != coef_dir_b and pos != cell.vertices[i] and pos != cell.vertices[(i + 1) % 4] and pos != j[0] and pos != j[1]:
                     return True
         return False
 
@@ -344,6 +351,11 @@ def main() -> int:
     f = Field(polyons)
     print()
     print(f)
+    print(f.cells)
+    for i in f.cells:
+        for j in i:
+            print(j.type.value, end = "")
+        print()
 
     # f.arrange_cells()
     # print()
