@@ -24,13 +24,19 @@ def display_field(field):
 
     for y in range(len(field.cells)):
         for x in range(len(field.cells[y])):
-            center = (field.cells[y][x].center[0] - 0.5, field.cells[y][x].center[1] - 0.5)
-            rectangle = plt.Rectangle(center , 1, 1, fc=colors[field.cells[y][x].type.value][0])
+            pos = (field.cells[y][x].center[0] - 0.5, field.cells[y][x].center[1] - 0.5)
+            rectangle = plt.Rectangle(pos , 1, 1, fc=colors[field.cells[y][x].type.value][0])
             plt.gca().add_patch(rectangle)
+
+    for y in range(len(field.cells)):
+        for x in range(len(field.cells[y])):
+            center = (field.cells[y][x].center[0], field.cells[y][x].center[1])
+            plt.plot(center[0], center[1], 'go', color='blue')
 
     legend = []
     for elem in colors:
         legend.append(mpatches.Patch(color=elem[0], label=elem[1]))
+    legend = legend[:2] + [legend[4]] + legend[2:4]
     plt.legend(handles=legend, loc='lower left', bbox_to_anchor=(1.05, 0.95))
 
     plt.title('Field delimitation', fontweight ="bold")
