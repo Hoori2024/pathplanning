@@ -10,7 +10,7 @@ setup(
         name="pathplanning",
         version=VERSION,
         author="Hoori",
-        author_email="<justine.fricou@epitech.eu>",
+        author_email="<hoori_2024@labeip.epitech.eu>",
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         packages=find_packages(),

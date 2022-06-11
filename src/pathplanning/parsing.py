@@ -12,11 +12,11 @@ import sys
 
 from typing import Tuple, List
 
-Vertex = Tuple[float, float]
-Edge = Tuple[Vertex, Vertex]
+Coords = Tuple[float, float]
+Edge = Tuple[Coords, Coords]
 
 
-def are_segments_secant(p_a: Vertex, p_b: Vertex, p_c: Vertex, p_d: Vertex) -> Vertex:
+def are_segments_secant(p_a: Coords, p_b: Coords, p_c: Coords, p_d: Coords) -> Coords:
     """
         Checks if the segments [AB] and [CD] are secant
         Segments are on the form (x, y).
@@ -46,13 +46,13 @@ def fill_list_edges(lines: List[str]):
     polygons: List[Edge] = []
 
     for line in lines:
-        polygon_vertices: List[Vertex] = []
+        polygon_vertices: List[Coords] = []
         line = line.replace("(", "").replace(" ", "").replace("\n", "")
         for elem in line.split(")"):
             if elem != "":
                 coords: List(str) = elem.split(";")
                 try:
-                    new_vertex: Vertex = [float(coords[0]), float(coords[1])]
+                    new_vertex: Coords = [float(coords[0]), float(coords[1])]
                     if polygon_vertices.count(new_vertex) > 0:
                         print("Error: the vertices of the polygons are the same")
                         sys.exit(84)
@@ -79,7 +79,7 @@ def fill_list_edges(lines: List[str]):
     return polygons
 
 
-def get_list_sides(polygon_vertices: List[Vertex]) -> List[Edge]:
+def get_list_sides(polygon_vertices: List[Coords]) -> List[Edge]:
     """
         Get List of sides of the polygon
         return List of sides as List[Edge]
@@ -99,10 +99,10 @@ def sides_connected(side1: Edge, side2: Edge) -> bool:
         Check if the side is connected to an other side
         return True if they are connected
     """
-    vertex1: Vertex = side1[0]
-    vertex2: Vertex = side1[1]
-    vertex3: Vertex = side2[0]
-    vertex4: Vertex = side2[1]
+    vertex1: Coords = side1[0]
+    vertex2: Coords = side1[1]
+    vertex3: Coords = side2[0]
+    vertex4: Coords = side2[1]
     if vertex1[0] == vertex3[0] and vertex1[1] == vertex3[1]\
             or vertex2[0] == vertex3[0] and vertex2[1] == vertex3[1]:
         return True
@@ -117,7 +117,7 @@ def check_if_sides_are_not_segments(sides: List[Edge]) -> bool:
         Check if the sides are not segments
         return True if they are not segments
     """
-    print("SIDES", sides)
+    #print("SIDES", sides)
     for side in sides:
         for side_2 in sides:
             if not sides_connected(side, side_2) and are_segments_secant(side[0], side[1], side_2[0], side_2[1]) is not None:
@@ -177,7 +177,7 @@ def get_max_pos_x(polygon: List[Edge]) -> float:
     return max_pos_x
 
 
-def count_secant_edge_with_segment(polygon: List[Edge], segment: Tuple[Vertex, Vertex]):
+def count_secant_edge_with_segment(polygon: List[Edge], segment: Tuple[Coords, Coords]):
     """
         Count the number of secant edges with a segment
         return number of secant edges with a segment as int
@@ -200,7 +200,7 @@ def compute_lead_coef(segment):
     return (segment[0][1] - segment[1][1]) / x
 
 
-def check_if_vertex_in_polygon(polygon: List[Edge], vertex: Vertex) -> bool:
+def check_if_vertex_in_polygon(polygon: List[Edge], vertex: Coords) -> bool:
     """
         Check if a vertex is in a polygon
         return True if the vertex is in the polygon

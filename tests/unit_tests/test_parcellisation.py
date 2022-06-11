@@ -67,42 +67,11 @@ class TestParcellisation():
         assert f.compute_lead_coef(segment_c) == None
 
 
-    def test_is_cell_on_edge(self):
-        polygons = [[(0.0, 0.0), (0.0, 10.0), (10.0, 7.0), (10.0, 0.0)], [(4.0, 5.0), (4.0, 6.0), (5.0, 5.0)]]
-        f = Field(polygons)
-        cell_on_edge = f.Cell((0.2, 0.2))
-        cell_not_on_edge = f.Cell((1.5, 1.5))
-
-        assert f.is_cell_on_edge(cell_on_edge) == True
-        assert f.is_cell_on_edge(cell_not_on_edge) == False
-
-
-    def test_arrange_cells(self):
-        ...
-
-
-    def test_surrounding_cells(self):
-        polygons = [[(0, 0), (5, 0), (5, 5), (0, 5)]]
-        f = Field(polygons)
-        surrounding_cells = f.get_surrounding_cells(1, 1)
-
-        assert len(surrounding_cells) == 4
-        assert surrounding_cells[0] == (Direction.UP, f.cells[0][1])
-        assert surrounding_cells[1] == (Direction.DOWN, f.cells[2][1])
-        assert surrounding_cells[2] == (Direction.LEFT, f.cells[1][0])
-        assert surrounding_cells[3] == (Direction.RIGHT, f.cells[1][2])
-
-
-    def test_get_pt_intersect_for_cell(self):
-        polygons = [[(0, 0), (5, 0), (5, 5), (0, 5)]]
-        f = Field(polygons)
-        cell = f.Cell((0, 0))
-
-        pt_intersect = f.get_pt_intersect_for_cell(cell)
-        assert len(pt_intersect) == 2
-        assert pt_intersect[0] == (0, (0, 0.5))
-        assert pt_intersect[1] == (1, (0.5, 0))
-
+    def test_get_opposite_dir(self):
+        assert get_opposite_dir(Direction.UP) == Direction.DOWN
+        assert get_opposite_dir(Direction.RIGHT) == Direction.LEFT
+        assert get_opposite_dir(Direction.DOWN) == Direction.UP
+        assert get_opposite_dir(Direction.LEFT) == Direction.RIGHT
 
 
     def test_str_direction(self):
@@ -129,7 +98,44 @@ class TestParcellisation():
         assert repr(direction_left) == "LEFT"
 
 
-    def test_repr_cell_type(self):
+    def test_is_cell_on_edge(self):
+        polygons = [[(0.0, 0.0), (0.0, 10.0), (10.0, 7.0), (10.0, 0.0)], [(4.0, 5.0), (4.0, 6.0), (5.0, 5.0)]]
+        f = Field(polygons)
+        cell_on_edge = f.Cell((0.2, 0.2))
+        cell_not_on_edge = f.Cell((1.5, 1.5))
+
+        assert f.is_cell_on_edge(cell_on_edge) == True
+        assert f.is_cell_on_edge(cell_not_on_edge) == False
+
+
+    def test_arrange_cells(self):
+        ...
+
+
+    def test_surrounding_cells(self):
+        polygons = [[(0, 0), (5, 0), (5, 5), (0, 5)]]
+        f = Field(polygons)
+        surrounding_cells = f.get_surrounding_cells(1, 1)
+
+        assert len(surrounding_cells) == 4
+        assert surrounding_cells[0] == (Direction.LEFT, f.cells[0][1])
+        assert surrounding_cells[1] == (Direction.RIGHT, f.cells[2][1])
+        assert surrounding_cells[2] == (Direction.DOWN, f.cells[1][0])
+        assert surrounding_cells[3] == (Direction.UP, f.cells[1][2])
+
+
+    def test_get_pt_intersect_for_cell(self):
+        polygons = [[(0, 0), (5, 0), (5, 5), (0, 5)]]
+        f = Field(polygons)
+        cell = f.Cell((0, 0))
+
+        pt_intersect = f.get_pt_intersect_for_cell(cell)
+        assert len(pt_intersect) == 2
+        assert pt_intersect[0] == (0, (0, 0.5))
+        assert pt_intersect[1] == (1, (0.5, 0))
+
+
+    def test_repr_str_cell_type(self):
         comp_in = Field.Cell.CellType.COMPLETLY_INSIDE
         cen_in = Field.Cell.CellType.CENTER_INSIDE
         cen_out = Field.Cell.CellType.CENTER_OUTSIDE
@@ -142,16 +148,39 @@ class TestParcellisation():
         assert repr(compt_out) == "COMPLETLY_OUTSIDE"
         assert repr(cen_edge) == "CENTER_ON_EDGE"
 
-
-    def test_str_cell_type(self):
-        comp_in = Field.Cell.CellType.COMPLETLY_INSIDE
-        cen_in = Field.Cell.CellType.CENTER_INSIDE
-        cen_out = Field.Cell.CellType.CENTER_OUTSIDE
-        compt_out = Field.Cell.CellType.COMPLETLY_OUTSIDE
-        cen_edge = Field.Cell.CellType.CENTER_ON_EDGE
-
         assert str(comp_in) == "COMPLETLY_INSIDE"
         assert str(cen_in) == "CENTER_INSIDE"
         assert str(cen_out) == "CENTER_OUTSIDE"
         assert str(compt_out) == "COMPLETLY_OUTSIDE"
         assert str(cen_edge) == "CENTER_ON_EDGE"
+
+
+    def test_str_field(self):
+        f = Field([[(0, 0), (2, 0), (1, 2)]])
+
+        s = ""
+        s += "Edges: [((0, 0), (2, 0)), ((2, 0), (1, 2)), ((1, 2), (0, 0))]\n"
+        s += "Cells:\n"
+        s += "Cell(center: (0.5, 0.5), vertices: [(0.0, 1.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0)], type: CENTER_INSIDE)\n"
+        s += "Cell(center: (0.5, 1.5), vertices: [(0.0, 2.0), (1.0, 2.0), (1.0, 1.0), (0.0, 1.0)], type: CENTER_OUTSIDE)\n"
+        s += "---\n"
+        s += "Cell(center: (1.5, 0.5), vertices: [(1.0, 1.0), (2.0, 1.0), (2.0, 0.0), (1.0, 0.0)], type: CENTER_INSIDE)\n"
+        s += "Cell(center: (1.5, 1.5), vertices: [(1.0, 2.0), (2.0, 2.0), (2.0, 1.0), (1.0, 1.0)], type: CENTER_OUTSIDE)\n"
+        s += "---\n"
+
+        assert str(f) == s
+
+
+    def test_repr_field(self):
+        f = Field([[(0, 0), (2, 0), (1, 2)]])
+
+        s = ""
+        s += "edges: [((0, 0), (2, 0)), ((2, 0), (1, 2)), ((1, 2), (0, 0))]\n"
+        s += "field:\n"
+        s += "Cell(center: (0.5, 0.5), vertices: [(0.0, 1.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0)], type: CENTER_INSIDE)\n"
+        s += "Cell(center: (0.5, 1.5), vertices: [(0.0, 2.0), (1.0, 2.0), (1.0, 1.0), (0.0, 1.0)], type: CENTER_OUTSIDE)\n"
+        s += "---\n"
+        s += "Cell(center: (1.5, 0.5), vertices: [(1.0, 1.0), (2.0, 1.0), (2.0, 0.0), (1.0, 0.0)], type: CENTER_INSIDE)\n"
+        s += "Cell(center: (1.5, 1.5), vertices: [(1.0, 2.0), (2.0, 2.0), (2.0, 1.0), (1.0, 1.0)], type: CENTER_OUTSIDE)\n"
+        s += "---\n"
+        assert repr(f) == s

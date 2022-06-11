@@ -5,7 +5,7 @@
     parcellisation.py
 """
 
-from enum import Enum
+from enum import IntEnum
 from typing import List, Tuple
 from math import floor, ceil
 import sys
@@ -14,12 +14,12 @@ from src.pathplanning.parsing import fill_list_edges, are_segments_secant
 from src.pathplanning.visualisation import *
 
 
-Vertex = Tuple[float, float]
-Edge = Tuple[Vertex, Vertex]
+Coords = Tuple[float, float]
+Edge = Tuple[Coords, Coords]
 
 
 
-def parse_input_file(filepath: str) -> List[List[Vertex]]:
+def parse_input_file(filepath: str) -> List[List[Coords]]:
     """
         (0; 0.2) (0; -1) (3.8; 5) (0; 4)
         (2; 3) (3; 2.9) (2; 4)
@@ -33,7 +33,7 @@ def parse_input_file(filepath: str) -> List[List[Vertex]]:
     # - vérifier qu'un polygone enfant ne soit pas dans un autre polygone enfant
 
     # List of polygons (polygon = list of its vertices)
-    polygons: List[List[Vertex]] = []
+    polygons: List[List[Coords]] = []
     try:
         with open(filepath, "r", encoding="utf8") as file:
             lines: List[str] = file.readlines()
@@ -47,7 +47,7 @@ def parse_input_file(filepath: str) -> List[List[Vertex]]:
     return polygons
 
 
-def list_of_vertices_to_list_of_edges(vertices: List[Vertex]) -> List[Edge]:
+def list_of_vertices_to_list_of_edges(vertices: List[Coords]) -> List[Edge]:
     """ Converts a list of a polygon's vertices into a list of its vertices. """
     edges = []
     for idx_vertex in range(len(vertices)):
@@ -63,7 +63,7 @@ def list_of_vertices_to_list_of_edges(vertices: List[Vertex]) -> List[Edge]:
 #     return ((segment1[0] - segment2[0]) ** 2 + (segment1[1] - segment2[1]) ** 2) ** 0.5
 
 
-class Direction(Enum):
+class Direction(IntEnum):
     """
         class Direction: represents directions that can be taken from a cell
     """
@@ -72,11 +72,24 @@ class Direction(Enum):
     DOWN = 2
     LEFT = 3
 
+
     def __str__(self):
         return self.name
 
+
     def __repr__(self):
         return self.name
+
+
+def get_opposite_dir(direction: Direction) -> Direction:
+    if direction == Direction.UP:
+        return Direction.DOWN
+    if direction == Direction.RIGHT:
+        return Direction.LEFT
+    if direction == Direction.DOWN:
+        return Direction.UP
+    if direction == Direction.LEFT:
+        return Direction.RIGHT
 
 
 class Field:
@@ -89,7 +102,7 @@ class Field:
             class Cell: cell of the field, expect position of the center of the cell
         """
 
-        class CellType(Enum):
+        class CellType(IntEnum):
             """
                 class CellType: cell type defined by the position on the map and the position of the field's edges
             """
@@ -110,8 +123,8 @@ class Field:
 
         def __init__(self, center):
             """ center: the coordinates of the center """
-            self.center: Vertex = center
-            self.vertices: List[Vertex] = []
+            self.center: Coords = center
+            self.vertices: List[Coords] = []
             self.type = self.CellType.COMPLETLY_INSIDE
 
             # Determining the cell's vertices /!\ clockwise from top-left /!\
@@ -132,7 +145,7 @@ class Field:
             string = f"Cell("
             string += f'center: {self.center}, '
             string += f'vertices: {self.vertices}, '
-            string += f'type: {self.type}'
+            string += f'type: {self.type.name}'
             string += ')'
             return string
 
@@ -148,7 +161,14 @@ class Field:
             self.type = type
 
 
-    def __init__(self, polygons: List[List[Vertex]]):
+        def get_edge_for_direction(self, direction: Direction) -> Edge:
+            for edge in self.edges:
+                if edge[0] == direction or edge[0] == int(direction):
+                    return edge
+            return None
+
+
+    def __init__(self, polygons: List[List[Coords]]):
         """
             polygons: list of the field's polygons (polygon = list of vertices)
         """
@@ -161,7 +181,7 @@ class Field:
         self.max_pos_x = ceil(self.edges[0][0][0])
         self.min_pos_y = floor(self.edges[0][0][1])
         self.max_pos_y = ceil(self.edges[0][0][1])
-        self.cells = []
+        self.cells: List[List[self.Cell]] = []
 
         for j in self.edges:
             for i in j:
@@ -284,26 +304,97 @@ class Field:
                 if cell.type != self.Cell.CellType.CENTER_OUTSIDE:
                     continue
 
-                # Determining which directions we could shift (only towards
-                # `CENTER_INSIDE` and `COMPLETELY_INSIDE` cells)
-                surrounding_cells = self.get_surrounding_cells(line_nb, col_nb)
-                shift_ok_cells = filter(lambda cell: cell[1].type == self.Cell.CellType.COMPLETLY_INSIDE
-                                        or cell.type == self.Cell.CellType.CENTER_INSIDE, surrounding_cells)
+                # Determining which directions we could shift (only towards surrounding
+                # cells that are `CENTER_INSIDE` and `COMPLETELY_INSIDE`)
+                surrounding_cells: List[Tuple[Direction, self.Cell]] = self.get_surrounding_cells(line_nb, col_nb)
+                shift_ok_cells: List[Tuple[Direction, self.Cell]] = list(filter(lambda sur_cell:
+                    sur_cell[1].type == self.Cell.CellType.COMPLETLY_INSIDE
+                    or sur_cell[1].type == self.Cell.CellType.CENTER_INSIDE, surrounding_cells))
+
+                shift_directions = [shift_ok_cell[0] for shift_ok_cell in shift_ok_cells]
+                shift_directions_vert = list(filter(lambda dir: dir == Direction.UP
+                    or dir == Direction.DOWN, shift_directions))
+                shift_directions_hor = list(filter(lambda dir: dir == Direction.LEFT
+                    or dir == Direction.RIGHT, shift_directions))
 
                 # Getting the points of intersection with the field's edges:
-                pt_intersect = self.get_pt_intersect_for_cell(cell)
+                pt_intersect: List[Tuple[Direction, Coords]] = self.get_pt_intersect_for_cell(cell)
+                pt_inter_vert: List[Tuple[Direction, Coords]] = list(filter(lambda pt:
+                    pt[0] % 2 == 0, pt_intersect))
+                pt_inter_hor: List[Tuple[Direction, Coords]] = list(filter(lambda pt:
+                    pt[0] % 2 == 1, pt_intersect))
 
-                # Shifting the cell vertically if needed:
+                # Determining the shift vector:
+                shift_dist_horizontal: float = self.get_shift_value(cell, pt_inter_vert,
+                    shift_directions_hor)
+                shift_dist_vertical: float = self.get_shift_value(cell, pt_inter_hor,
+                    shift_directions_vert)
+                vector: Coords = (shift_dist_horizontal, shift_dist_vertical)
 
-                # Shifting the cell horizontally if needed:
+                # print()
+                # print(cell)
+                # print(pt_inter_vert, shift_directions_hor)
+                # print(pt_inter_hor, shift_directions_vert)
+                # print(f"shift vector: {vector}")
 
-        # Removing the cells completely outside:
-        new_cells_list = []
-        for line in self.cells:
-            filtered_line = filter(
-                lambda cell: cell.type != self.Cell.CellType.COMPLETLY_OUTSIDE, line)
-            new_cells_list.append(filtered_line)
-        self.cells = new_cells_list
+                # Shifting the cell:
+                self.shift_cell(line_nb, col_nb, vector)
+
+        self.refresh_cells_types()
+
+
+    def get_shift_value(self, cell: Cell, pts_intersection: List[Tuple[Direction, Coords]],
+        shift_directions: List[Direction]) -> float:
+        """
+            Returns which distance the cell should be shifted for one direction
+            (horizontal of vertical). Returns 0 if no shift is needed.
+            `pts_intersection`: the points of intersection that trigger the need to shift
+            the `cell` in one of the given `shift_directions`.
+            The given parameters must correspond to only one direction (horizontal of vertical).
+            e.g: if the points of intersections are vertical, the shift directions must be
+            horizontal.
+        """
+        if len(pts_intersection) > 0 and len(shift_directions) > 0:
+
+            # Any direction is good, so we take the first available one:
+            shift_dir = shift_directions[0]
+
+            # We calculate the distances between the pts of intersection and the vertices
+            # of the edge opposite to the shift direction, and choose the smallest one:
+            distances = []
+            for pt in pts_intersection:
+                opposite_direction = get_opposite_dir(shift_dir)
+                opposite_edge = cell.get_edge_for_direction(opposite_direction)
+                for vertex in opposite_edge[1]:
+                    distances.append(self.get_distance_between_points(pt[1], vertex))
+
+            if len(distances) == 0:
+                return 0
+            shift_value = min(distances)
+
+            # If the shift direction is DOWN or RIGHT, the value is negative:
+            if shift_dir > 1:
+                shift_value *= -1
+
+            return shift_value
+
+        else:
+            return 0
+
+
+    def get_distance_between_points(self, point1: Coords, point2: Coords) -> float:
+        """ Returns the distance between the two points. """
+        pt1_x, pt1_y = point1
+        pt2_x, pt2_y = point2
+
+        return ((pt2_x - pt1_x) ** 2 + (pt2_y - pt1_y) ** 2) ** 0.5
+
+
+    def shift_cell(self, line_nb: int, col_nb: int, vector: Coords) -> None:
+        """ Shifts the cell's coordinates by `vector` """
+        cell: self.Cell = self.cells[line_nb][col_nb]
+        new_center: Coords = (cell.center[0] + vector[0], cell.center[1] + vector[1])
+        cell.center = new_center
 
 
     def get_surrounding_cells(self, line_nb: int, col_nb: int) -> List[Tuple[Direction, Cell]]:
@@ -312,33 +403,51 @@ class Field:
             with the given indexes, in the following directions: up, right, down, left.
             The info includes the direction and the cell.
         """
+
+        # The field's cells are listed from left to right and top to bottom.
+        # For a field represented in a grid whose origin is on the bottom-left corner:
+        # - a line of self.cells is a column on a field. self.cells[0] is the left-most column
+        # - a column of self.cells is a line on a field. self.cells[0][0] is the bottom-left cell
+        
         surrounding_cells = []
         if line_nb > 0:
             surrounding_cells.append((
-                Direction.UP, (self.cells[line_nb - 1][col_nb])))
+                Direction.LEFT, (self.cells[line_nb - 1][col_nb])))
         if line_nb < len(self.cells) - 1:
             surrounding_cells.append((
-                Direction.DOWN, (self.cells[line_nb + 1][col_nb])))
+                Direction.RIGHT, (self.cells[line_nb + 1][col_nb])))
         if col_nb > 0:
             surrounding_cells.append((
-                Direction.LEFT, (self.cells[line_nb][col_nb - 1])))
+                Direction.DOWN, (self.cells[line_nb][col_nb - 1])))
         if col_nb < len(self.cells[0]) - 1:
             surrounding_cells.append((
-                Direction.RIGHT, (self.cells[line_nb][col_nb + 1])))
+                Direction.UP, (self.cells[line_nb][col_nb + 1])))
         return surrounding_cells
 
 
-    def get_pt_intersect_for_cell(self, cell: Cell) -> List[Tuple[Direction, Vertex]]:
+    def get_pt_intersect_for_cell(self, cell: Cell) -> List[Tuple[Direction, Coords]]:
         """
             Returns a list of tuples containing info on the points of intersection
             of the field's edges and the given cell's edges.
             The info includes the direction and the coordinates of the point.
         """
+
         pt_intersect_list = []
         for (direction, cell_edge) in cell.edges:
+
             for field_edge in self.edges:
+
                 pt_intersect = are_segments_secant(
                     cell_edge[0], cell_edge[1], field_edge[0], field_edge[1])
-                if pt_intersect is not None:
+
+                # Ignore the intersection point if it's on one of the cell's vertices:
+                pt_is_on_vertex = False
+                for cell_vertex in cell.vertices:
+                    if cell_vertex == pt_intersect:
+                        pt_is_on_vertex = True
+                        continue
+
+                if pt_intersect is not None and not pt_is_on_vertex:
                     pt_intersect_list.append((direction, pt_intersect))
+
         return pt_intersect_list
