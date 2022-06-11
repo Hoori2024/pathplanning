@@ -75,7 +75,7 @@ def fill_list_edges(lines: List[str]):
         if not check_if_child_in_parent(list_edges_i, list_edges):
             print("Error: the child is not in the parent")
             sys.exit(84)
-    print(polygons)
+    #print(polygons)
     return polygons
 
 

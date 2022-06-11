@@ -8,15 +8,18 @@ def display_field(field):
         display the field
     """
 
-    colors = [['seagreen', "Cell completly inside"],
-    ['lightseagreen', "Cell center inside"],
-    ['yellow', "Cell center outside"],
-    ['gold', "Cell completly outside"],
-     ['deepskyblue', "Cell center on edge"]]
+    colors = [
+        ['seagreen', "Cell completly inside"],
+        ['lightseagreen', "Cell center inside"],
+        ['orange', "Cell center outside"],
+        ['firebrick', "Cell completly outside"],
+        ['yellow', "Cell center on edge"]
+    ]
+
 
     plt.axes()
     for edge in field.edges:
-        line = plt.Line2D((edge[0][0], edge[1][0]), (edge[0][1], edge[1][1]), lw = 3, color='red')
+        line = plt.Line2D((edge[0][0], edge[1][0]), (edge[0][1], edge[1][1]), lw = 3, color='black')
         plt.gca().add_line(line)
 
     for y in range(len(field.cells)):
