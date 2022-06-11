@@ -18,7 +18,6 @@ Coords = Tuple[float, float]
 Edge = Tuple[Coords, Coords]
 
 
-
 def parse_input_file(filepath: str) -> List[List[Coords]]:
     """
         (0; 0.2) (0; -1) (3.8; 5) (0; 4)
@@ -305,11 +304,12 @@ class Field:
                     continue
 
                 # Determining which directions we could shift (only towards surrounding
-                # cells that are `CENTER_INSIDE` and `COMPLETELY_INSIDE`)
+                # cells that are `CENTER_INSIDE`,`CENTER_ON_EDGE`  and `COMPLETELY_INSIDE`)
                 surrounding_cells: List[Tuple[Direction, self.Cell]] = self.get_surrounding_cells(line_nb, col_nb)
                 shift_ok_cells: List[Tuple[Direction, self.Cell]] = list(filter(lambda sur_cell:
                     sur_cell[1].type == self.Cell.CellType.COMPLETLY_INSIDE
-                    or sur_cell[1].type == self.Cell.CellType.CENTER_INSIDE, surrounding_cells))
+                    or sur_cell[1].type == self.Cell.CellType.CENTER_INSIDE
+                    or sur_cell[1].type == self.Cell.CellType.CENTER_ON_EDGE, surrounding_cells))
 
                 shift_directions = [shift_ok_cell[0] for shift_ok_cell in shift_ok_cells]
                 shift_directions_vert = list(filter(lambda dir: dir == Direction.UP
