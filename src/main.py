@@ -36,7 +36,7 @@ def main() -> int:
     # print()
     print(f)
 
-    display_field(f)
+    #display_field(f)
 
     sys.exit(0)
 

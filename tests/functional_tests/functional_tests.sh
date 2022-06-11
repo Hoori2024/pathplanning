@@ -18,23 +18,24 @@ nbTestsKO=0
 
 script_dir=`dirname -- "$0"`
 
-expected_outputs_dir=/expected_outputs
-inputs_dir=/inputs
+expected_outputs_dir="expected_outputs"
+inputs_dir="inputs"
+inputs_dir_error_management="$inputs_dir/error_management"
 
 log_path="$script_dir/logs"
 
 
-function testWithFiles() {
+function testFileNormal() {
     testname=$1
 
-    python3 ./src/parcellisation.py "$script_dir/$inputs_dir/$testname" > "$log_path"
-    result=$(cat $log_path)
+    python3 ./src/main.py "$script_dir/$inputs_dir/$testname" > "$log_path"
     exitValue=$?
+    result=$(cat $log_path)
 
     expected=$(cat $script_dir/$expected_outputs_dir/$testname)
     diff=$(diff -y  $log_path $script_dir/$expected_outputs_dir/$testname)
 
-    if [ $exitValue = 0 ];
+    if [ $exitValue == 0 ];
         then if [[ "$result" == "$expected" ]];
             then nbTestsOK=$((nbTestsOK + 1))
                 echo -e "$TITLEOK""\n---------- $1 ----------\n""$UNTITLEOK"
@@ -50,37 +51,44 @@ function testWithFiles() {
     fi
 }
 
-# function launchTestsErrorManagement() {
+function testFileErrorManagement() {
+    testname=$1
 
-#     input_files=`ls $script_dir/$inputs_dir`
+    python3 ./src/main.py "$script_dir/$inputs_dir_error_management/$testname" > "$log_path"
+    exitValue=$?
+    result=$(cat $log_path)
 
-#     for filename in $input_files
-#     do
-#         testWithFiles $filename
-#     done
+    if [ $exitValue == 84 ];
+        then nbTestsOK=$((nbTestsOK + 1))
+            echo -e "$TITLEOK""\n---------- $filename ----------\n""$UNTITLEOK"
+    else
+        nbTestsKO=$((nbTestsKO + 1))
+        echo -e "$TITLEKO""\n---------- $1 ----------\n""$UNTITLEKO"
+        echo -e $result
+    fi
+}
 
-#     echo -e "$BOLD""\n--------------------\n""$UNBOLD"
-#     echo -e "$BOLD""Tests OK: $nbTestsOK""$UNBOLD"
-#     echo -e "$BOLD""Tests KO: $nbTestsKO""$UNBOLD"
+function launchAllTests() {
 
-# }
-
-function launchNormalTests() {
-
-    input_files=`ls $script_dir/$inputs_dir`
-
+    input_files=`ls -p $script_dir/$inputs_dir | grep -v /`
     for filename in $input_files
     do
-        testWithFiles $filename
+        testFileNormal $filename
     done
 
-    echo -e "$BOLD""\n--------------------\n""$UNBOLD"
-    echo -e "$BOLD""Tests OK: $nbTestsOK""$UNBOLD"
-    echo -e "$BOLD""Tests KO: $nbTestsKO""$UNBOLD"
+    input_files_error_management=`ls $script_dir/$inputs_dir_error_management`
+    for filename in $input_files_error_management
+    do
+        testFileErrorManagement $filename
+    done
 
 }
 
-# launchTestsErrorManagement
-launchNormalTests
+launchAllTests
+
+echo -e "$BOLD""\n--------------------\n""$UNBOLD"
+echo -e "$BOLD""Tests OK: $nbTestsOK""$UNBOLD"
+echo -e "$BOLD""Tests KO: $nbTestsKO""$UNBOLD"
+
 rm -f logs
 echo
