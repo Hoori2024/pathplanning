@@ -24,12 +24,6 @@ def parse_input_file(filepath: str) -> List[List[Coords]]:
         (2; 3) (3; 2.9) (2; 4)
         parse the input file and return a list of polygons
     """
-    # TODO:
-    # - check if every polygon has at least 3 vertices - OK
-    # - vérifier qu'un polygone n'ait pas plusieurs sommets confondus - OK
-    # - vérifier qu'un polygone n'ait pas des côtés qui se croisent
-    # - vérifier que les polygones enfants soient tous dans le polygone parent
-    # - vérifier qu'un polygone enfant ne soit pas dans un autre polygone enfant
 
     # List of polygons (polygon = list of its vertices)
     polygons: List[List[Coords]] = []
