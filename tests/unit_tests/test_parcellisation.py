@@ -8,19 +8,15 @@ from src.pathplanning.parcellisation import *
 
 class TestParcellisation():
     def test_parse_input_file(self):
-        ...
+        result = [[[0.2, 0.0], [0.8, 0.0], [0.8, 4.5], [0.2, 4.5]]]
 
+        assert parse_input_file("tests/test_maps/exemple1") == result
 
     def test_list_of_vertices_to_list_of_edges(self):
-        ...
+        vertices = [[[0.2, 0.0], [0.8, 0.0], [0.8, 4.5], [0.2, 4.5]]]
+        edges = [([[0.2, 0.0], [0.8, 0.0], [0.8, 4.5], [0.2, 4.5]], [[0.2, 0.0], [0.8, 0.0], [0.8, 4.5], [0.2, 4.5]])]
 
-
-    def test_are_segments_secant(self):
-        ...
-
-
-    def test_get_distance_between_segments(self):
-        ...
+        assert list_of_vertices_to_list_of_edges(vertices) == edges
 
 
     def test_refresh_cells_types(self):

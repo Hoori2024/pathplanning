@@ -56,6 +56,9 @@ def parse_input_file(filepath: str) -> List[List[Vertex]]:
 
 
 def list_of_vertices_to_list_of_edges(vertices: List[Vertex]) -> List[Edge]:
+    """
+        transform a list of vertices to a list of edges
+    """
     edges = []
     for idx_vertex in range(len(vertices)):
         edges.append(

@@ -28,10 +28,3 @@ class TestParsing():
         TestCase().assertRaises(SystemExit, fill_list_edges, lines_child_out_of_parent)
         TestCase().assertRaises(SystemExit, fill_list_edges, lines_secant_with_parent)
         TestCase().assertRaises(SystemExit, fill_list_edges, lines_confond_parent)
-
-    def test_check_if_vertices_in_polygon(self):
-        ...
-
-
-    def test_check_if_child_in_parent(self):
-        ...
