@@ -31,7 +31,7 @@ def display_field(field):
     for y in range(len(field.cells)):
         for x in range(len(field.cells[y])):
             center = (field.cells[y][x].center[0], field.cells[y][x].center[1])
-            plt.plot(center[0], center[1], 'go', color='blue')
+            plt.plot(center[0], center[1], 'bo')
 
     legend = []
     for elem in colors:
