@@ -8,11 +8,11 @@ class TestParcellisation():
         
         assert len(polygons) == 1
         assert len(polygons[0]) == 5
-        assert polygons[0][0] == (1, 0)
-        assert polygons[0][1] == (6, 1)
-        assert polygons[0][2] == (5, 4)
-        assert polygons[0][3] == (3, 5)
-        assert polygons[0][4] == (3, 3)
+        assert polygons[0][0] == [1, 0]
+        assert polygons[0][1] == [6, 1]
+        assert polygons[0][2] == [5, 4]
+        assert polygons[0][3] == [3, 5]
+        assert polygons[0][4] == [3, 3]
 
 
     def test_list_of_vertices_to_list_of_edges(self):

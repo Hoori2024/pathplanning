@@ -2,7 +2,7 @@ import sys
 from typing import List, Tuple
 
 from src.pathplanning.parcellisation import *
-
+from src.pathplanning.visualisation import *
 
 Vertex = Tuple[float, float]
 
@@ -20,25 +20,23 @@ def main() -> int:
     """
         Main function.
     """
-    if len(sys.argv) <= 1 and len(sys.argv) > 2:
+    if len(sys.argv) <= 1 or len(sys.argv) > 2:
         display_usage_and_exit(84)
     if '-h' in sys.argv or '--help' in sys.argv:
         display_usage_and_exit(0)
     print()
     polyons: List[List[Vertex]] = parse_input_file(sys.argv[1])
+    print(polyons)
 
     f = Field(polyons)
     print()
     print(f)
-    print(f.cells)
-    for i in f.cells:
-        for j in i:
-            print(j.type.value, end = "")
-        print()
 
     f.arrange_cells()
     print()
     print(f)
+
+    #display_field(f)
 
     sys.exit(0)
 

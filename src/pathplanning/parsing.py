@@ -7,6 +7,7 @@
     parsing.py (à modifier)
 """
 
+from inspect import trace
 import sys
 
 from typing import Tuple, List
@@ -51,7 +52,7 @@ def fill_list_edges(lines: List[str]):
             if elem != "":
                 coords: List(str) = elem.split(";")
                 try:
-                    new_vertex: Vertex = (float(coords[0]), float(coords[1]))
+                    new_vertex: Vertex = [float(coords[0]), float(coords[1])]
                     if polygon_vertices.count(new_vertex) > 0:
                         print("Error: the vertices of the polygons are the same")
                         sys.exit(84)
@@ -59,6 +60,22 @@ def fill_list_edges(lines: List[str]):
                 except (ValueError, IndexError):
                     sys.exit(84)
         polygons.append(polygon_vertices)
+    if len(polygons[0]) < 3:
+        print("Not enough vertices")
+        sys.exit(84)
+    list_edges: List[Edge] = get_list_sides(polygons[0])
+    if not check_if_sides_are_not_segments(list_edges):
+        print("Error: the sides are segments")
+        sys.exit(84)
+    for i in polygons[1:]:
+        list_edges_i: List[Edge] = get_list_sides(i)
+        if not check_if_sides_are_not_segments(list_edges_i):
+            print("Error: the sides of a child are segments")
+            sys.exit(84)
+        if not check_if_child_in_parent(list_edges_i, list_edges):
+            print("Error: the child is not in the parent")
+            sys.exit(84)
+    print(polygons)
     return polygons
 
 
@@ -69,7 +86,7 @@ def get_list_sides(polygon_vertices: List[Vertex]) -> List[Edge]:
     """
     list_sides: List[Edge] = []
 
-    for i in enumerate(polygon_vertices):
+    for i, _ in enumerate(polygon_vertices):
         if i == len(polygon_vertices) - 1:
             list_sides.append([polygon_vertices[i], polygon_vertices[0]])
         else:
@@ -100,16 +117,10 @@ def check_if_sides_are_not_segments(sides: List[Edge]) -> bool:
         Check if the sides are not segments
         return True if they are not segments
     """
-    for idx in enumerate(sides):
-        if idx == len(sides) - 1:
-            if not sides_connected(sides[idx], sides[0])\
-                    and are_segments_secant(sides[idx][0], sides[idx][1],
-                                            sides[0][0], sides[0][1]) is not None:
-                return False
-        else:
-            if not sides_connected(sides[idx], sides[idx + 1])\
-                    and are_segments_secant(sides[idx][0], sides[idx][1],
-                                            sides[idx + 1][0], sides[idx + 1][1]) is not None:
+    print("SIDES", sides)
+    for side in sides:
+        for side_2 in sides:
+            if not sides_connected(side, side_2) and are_segments_secant(side[0], side[1], side_2[0], side_2[1]) is not None:
                 return False
     return True
 
@@ -179,6 +190,16 @@ def count_secant_edge_with_segment(polygon: List[Edge], segment: Tuple[Vertex, V
     return count
 
 
+def compute_lead_coef(segment):
+    """
+        compute leading coefficient of a segment
+    """
+    x = segment[0][0] - segment[1][0]
+    if x == 0:
+        return None
+    return (segment[0][1] - segment[1][1]) / x
+
+
 def check_if_vertex_in_polygon(polygon: List[Edge], vertex: Vertex) -> bool:
     """
         Check if a vertex is in a polygon
@@ -187,15 +208,14 @@ def check_if_vertex_in_polygon(polygon: List[Edge], vertex: Vertex) -> bool:
     max_pos_x: float = get_max_pos_x(polygon) + 0.5
     max_pos_y: float = get_max_pos_y(polygon) + 0.5
 
+    for edge in polygon:
+        if compute_lead_coef((edge[0], vertex)) == compute_lead_coef((vertex, edge[1])) and\
+                vertex[0] >= min(edge[0][0], edge[1][0]) and vertex[0] <= max(edge[0][0], edge[1][0]) and\
+                vertex[1] >= min(edge[0][1], edge[1][1]) and vertex[1] <= max(edge[0][1], edge[1][1]) or\
+                vertex == edge[0] or vertex == edge[1]:
+            return None
     if count_secant_edge_with_segment(polygon, (vertex, (vertex[0], max_pos_y))) % 2 == 1 or\
             count_secant_edge_with_segment(polygon, (vertex, (max_pos_x, vertex[1]))) % 2 == 1:
-        for i in polygon:
-            pos_sec_y = are_segments_secant(
-                vertex, (vertex[0], max_pos_y), i[0], i[1])
-            pos_sec_x = are_segments_secant(
-                vertex, (max_pos_x, vertex[1]), i[0], i[1])
-            if vertex in (pos_sec_y, pos_sec_x):
-                return False
         return True
     return False
 
@@ -209,7 +229,8 @@ def check_if_child_in_parent(child: List[Edge], parent: List[Edge]) -> bool:
         for vertex in edge_c:
             if not check_if_vertex_in_polygon(parent, vertex):
                 return False
-        for edge_p in parent:
-            if not are_segments_secant(edge_c[0], edge_c[1], edge_p[0], edge_p[1]):
+    for edge_p in parent:
+        for edge_c in child:
+            if are_segments_secant(edge_p[0], edge_p[1], edge_c[0], edge_c[1]) is not None:
                 return False
     return True
