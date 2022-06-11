@@ -24,20 +24,12 @@ def main() -> int:
         display_usage_and_exit(84)
     if '-h' in sys.argv or '--help' in sys.argv:
         display_usage_and_exit(0)
-    # print()
+
     polygons: List[List[Vertex]] = parse_input_file(sys.argv[1])
-    # print(polygons)
-
     f = Field(polygons)
-    # print()
-    # print(f)
-
     f.arrange_cells()
-    # print()
-    print(f)
 
-    #display_field(f)
-
+    display_field(f)
     sys.exit(0)
 
 

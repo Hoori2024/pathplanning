@@ -22,13 +22,14 @@ expected_outputs_dir="expected_outputs"
 inputs_dir="inputs"
 inputs_dir_error_management="$inputs_dir/error_management"
 
+main_path="./src/main_parcellisation.py"
 log_path="$script_dir/logs"
 
 
 function testFileNormal() {
     testname=$1
 
-    python3 ./src/main.py "$script_dir/$inputs_dir/$testname" > "$log_path"
+    python3 $main_path "$script_dir/$inputs_dir/$testname" > "$log_path"
     exitValue=$?
     result=$(cat $log_path)
 
@@ -54,7 +55,7 @@ function testFileNormal() {
 function testFileErrorManagement() {
     testname=$1
 
-    python3 ./src/main.py "$script_dir/$inputs_dir_error_management/$testname" > "$log_path"
+    python3 $main_path "$script_dir/$inputs_dir_error_management/$testname" > "$log_path"
     exitValue=$?
     result=$(cat $log_path)
 
