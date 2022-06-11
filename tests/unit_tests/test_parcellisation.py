@@ -3,26 +3,15 @@ from src.pathplanning.parcellisation import *
 
 class TestParcellisation():
     def test_parse_input_file(self):
-        filepath = 'tests/functional_tests/inputs/simple_field'
-        polygons = parse_input_file(filepath)
-        
-        assert len(polygons) == 1
-        assert len(polygons[0]) == 5
-        assert polygons[0][0] == [1, 0]
-        assert polygons[0][1] == [6, 1]
-        assert polygons[0][2] == [5, 4]
-        assert polygons[0][3] == [3, 5]
-        assert polygons[0][4] == [3, 3]
+        result = [[[0.2, 0.0], [0.8, 0.0], [0.8, 4.5], [0.2, 4.5]]]
+        assert parse_input_file("tests/test_maps/exemple1") == result
 
 
     def test_list_of_vertices_to_list_of_edges(self):
-        vertices = [(0, 0), (3, 0), (1, 2)]
-        edges = list_of_vertices_to_list_of_edges(vertices)
+        vertices = [[[0.2, 0.0], [0.8, 0.0], [0.8, 4.5], [0.2, 4.5]]]
+        edges = [([[0.2, 0.0], [0.8, 0.0], [0.8, 4.5], [0.2, 4.5]], [[0.2, 0.0], [0.8, 0.0], [0.8, 4.5], [0.2, 4.5]])]
 
-        assert len(edges) == 3
-        assert edges[0] == ((0, 0), (3, 0))
-        assert edges[1] == ((3, 0), (1, 2))
-        assert edges[2] == ((1, 2), (0, 0))
+        assert list_of_vertices_to_list_of_edges(vertices) == edges
 
 
     def test_refresh_cells_types(self):
