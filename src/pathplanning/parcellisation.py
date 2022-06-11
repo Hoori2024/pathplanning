@@ -17,20 +17,12 @@ Vertex = Tuple[float, float]
 Edge = Tuple[Vertex, Vertex]
 
 
-def display_usage_and_exit(exit_code: int) -> None:
-    """
-        Display usage and exit with the given exit code.
-    """
-
-    print(f"USAGE: {sys.argv[0]} parcellisation.py filepath")
-    sys.exit(exit_code)
-
 
 def parse_input_file(filepath: str) -> List[List[Vertex]]:
     """
         (0; 0.2) (0; -1) (3.8; 5) (0; 4)
         (2; 3) (3; 2.9) (2; 4)
-        parse the input file and return a list of segments
+        parse the input file and return a list of polygons
     """
     # TODO:
     # - check if every polygon has at least 3 vertices - OK
@@ -59,6 +51,7 @@ def parse_input_file(filepath: str) -> List[List[Vertex]]:
 
 
 def list_of_vertices_to_list_of_edges(vertices: List[Vertex]) -> List[Edge]:
+    """ Converts a list of a polygon's vertices into a list of its vertices. """
     edges = []
     for idx_vertex in range(len(vertices)):
         edges.append(
@@ -66,11 +59,11 @@ def list_of_vertices_to_list_of_edges(vertices: List[Vertex]) -> List[Edge]:
     return edges
 
 
-def get_distance_between_segments(segment1, segment2) -> float:
-    """
-        Get the min distance between two segments
-    """
-    return ((segment1[0] - segment2[0]) ** 2 + (segment1[1] - segment2[1]) ** 2) ** 0.5
+# def get_distance_between_segments(segment1, segment2) -> float:
+#     """
+#         Get the min distance between two segments
+#     """
+#     return ((segment1[0] - segment2[0]) ** 2 + (segment1[1] - segment2[1]) ** 2) ** 0.5
 
 
 class Direction(Enum):
@@ -109,11 +102,14 @@ class Field:
             COMPLETLY_OUTSIDE = 3
             CENTER_ON_EDGE = 4
 
+
             def __str__(self):
                 return self.name
 
+
             def __repr__(self):
                 return self.name
+
 
         def __init__(self, center):
             """ center: the coordinates of the center """
@@ -134,6 +130,7 @@ class Field:
             for idx, edge in enumerate(edge_list):
                 self.edges.append((idx, edge))
 
+
         def __str__(self):
             string = f"Cell("
             string += f'center: {self.center}, '
@@ -142,14 +139,17 @@ class Field:
             string += ')'
             return string
 
+
         def __repr__(self):
             return str(self)
+
 
         def set_type(self, type):
             """
                 Set the type of the cell
             """
             self.type = type
+
 
     def __init__(self, polygons: List[List[Vertex]]):
         """
@@ -185,6 +185,7 @@ class Field:
 
         self.refresh_cells_types()
 
+
     def __str__(self):
         string = f"Edges: {self.edges}\n"
         string += "Cells:\n"
@@ -194,6 +195,7 @@ class Field:
             string += '---\n'
         return string
 
+
     def __repr__(self):
         string = f"edges: {self.edges}\n"
         string += "field:\n"
@@ -202,6 +204,7 @@ class Field:
                 string += (repr(cell) + '\n')
             string += '---\n'
         return string
+
 
     def refresh_cells_types(self):
         """
@@ -222,6 +225,7 @@ class Field:
                 else:
                     cell.set_type(cell.CellType.CENTER_ON_EDGE)
 
+
     def is_cell_center_in(self, cell):
         """
             check if a cell center is in or out of the edges
@@ -233,6 +237,7 @@ class Field:
             return True
         return False
 
+
     def count_secant_edge_with_segment(self, segment):
         """
             count the number of edges secants with a segment
@@ -243,6 +248,7 @@ class Field:
                 count += 1
         return count
 
+
     def compute_lead_coef(self, segment):
         """
             compute leading coefficient of a segment
@@ -251,6 +257,7 @@ class Field:
         if x == 0:
             return None
         return (segment[0][1] - segment[1][1]) / x
+
 
     def is_cell_on_edge(self, cell):
         """
@@ -265,6 +272,7 @@ class Field:
                 if pos != None and coef_dir_a != coef_dir_b and pos != cell.vertices[i] and pos != cell.vertices[(i + 1) % 4] and pos != j[0] and pos != j[1]:
                     return True
         return False
+
 
     def arrange_cells(self):
         """
@@ -299,6 +307,7 @@ class Field:
             new_cells_list.append(filtered_line)
         self.cells = new_cells_list
 
+
     def get_surrounding_cells(self, line_nb: int, col_nb: int) -> List[Tuple[Direction, Cell]]:
         """
             Returns a list of tuples containing info on the cells surrounding the cell
@@ -307,18 +316,19 @@ class Field:
         """
         surrounding_cells = []
         if line_nb > 0:
-            surrounding_cells.append(
-                Direction.UP, (self.cells[line_nb - 1][col_nb]))
+            surrounding_cells.append((
+                Direction.UP, (self.cells[line_nb - 1][col_nb])))
         if line_nb < len(self.cells) - 1:
-            surrounding_cells.append(
-                Direction.DOWN, (self.cells[line_nb + 1][col_nb]))
+            surrounding_cells.append((
+                Direction.DOWN, (self.cells[line_nb + 1][col_nb])))
         if col_nb > 0:
-            surrounding_cells.append(
-                Direction.LEFT, (self.cells[line_nb][col_nb - 1]))
+            surrounding_cells.append((
+                Direction.LEFT, (self.cells[line_nb][col_nb - 1])))
         if col_nb < len(self.cells[0]) - 1:
-            surrounding_cells.append(
-                Direction.RIGHT, (self.cells[line_nb][col_nb + 1]))
+            surrounding_cells.append((
+                Direction.RIGHT, (self.cells[line_nb][col_nb + 1])))
         return surrounding_cells
+
 
     def get_pt_intersect_for_cell(self, cell: Cell) -> List[Tuple[Direction, Vertex]]:
         """
@@ -334,35 +344,3 @@ class Field:
                 if pt_intersect is not None:
                     pt_intersect_list.append((direction, pt_intersect))
         return pt_intersect_list
-
-
-def main() -> int:
-    """
-        Main function.
-    """
-    if len(sys.argv) <= 1 and len(sys.argv) > 2:
-        display_usage_and_exit(84)
-    if '-h' in sys.argv or '--help' in sys.argv:
-        display_usage_and_exit(0)
-    print()
-    polyons: List[List[Vertex]] = parse_input_file(sys.argv[1])
-    print(polyons)
-
-    f = Field(polyons)
-    print()
-    print(f)
-    print(f.cells)
-    for i in f.cells:
-        for j in i:
-            print(j.type.value, end = "")
-        print()
-
-    # f.arrange_cells()
-    # print()
-    # print(f)
-
-    sys.exit(0)
-
-
-if __name__ == "__main__":
-    main()
