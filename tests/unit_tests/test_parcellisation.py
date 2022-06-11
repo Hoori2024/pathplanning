@@ -98,7 +98,25 @@ class TestParcellisation():
 
 
     def test_arrange_cells(self):
-        ...
+        polygons = [[(1, 0), (2, 0), (2, 3), (1, 3), (0, 2)]]
+        f = Field(polygons)
+        f.arrange_cells()
+
+        assert f.cells[0][0].type == Field.Cell.CellType.CENTER_INSIDE
+        assert f.cells[0][1].type == Field.Cell.CellType.CENTER_INSIDE
+        assert f.cells[0][2].type == Field.Cell.CellType.CENTER_ON_EDGE
+
+        assert f.cells[0][0].center == (1.0, 0.5)
+        assert f.cells[0][1].center == (0.5, 1.5)
+        assert f.cells[0][2].center == (0.5, 2.5)
+
+        assert f.cells[1][0].type == Field.Cell.CellType.COMPLETLY_INSIDE
+        assert f.cells[1][1].type == Field.Cell.CellType.COMPLETLY_INSIDE
+        assert f.cells[1][2].type == Field.Cell.CellType.COMPLETLY_INSIDE
+
+        assert f.cells[1][0].center == (1.5, 0.5)
+        assert f.cells[1][1].center == (1.5, 1.5)
+        assert f.cells[1][2].center == (1.5, 2.5)
 
 
     def test_surrounding_cells(self):
