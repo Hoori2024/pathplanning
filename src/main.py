@@ -34,7 +34,7 @@ def main() -> int:
 
     f.arrange_cells()
     # print()
-    # print(f)
+    print(f)
 
     display_field(f)
 

@@ -1,4 +1,4 @@
-Edges: [([1.0, 0.0], [6.0, 1.0]), ([6.0, 1.0], [5.0, 4.0]), ([5.0, 4.0], [3.0, 5.0]), ([3.0, 5.0], [0.0, 4.0]), ([0.0, 4.0], [1.0, 0.0]), ([2.0, 4.0], [4.0, 4.0]), ([4.0, 4.0], [4.0, 2.0]), ([4.0, 2.0], [2.0, 4.0]), ([2.0, 3.0], [3.0, 2.0]), ([3.0, 2.0], [1.0, 2.0]), ([1.0, 2.0], [2.0, 3.0])]
+Edges: [([1.0, 0.0], [6.0, 1.0]), ([6.0, 1.0], [5.0, 4.0]), ([5.0, 4.0], [3.0, 5.0]), ([3.0, 5.0], [0.0, 4.0]), ([0.0, 4.0], [1.0, 0.0])]
 Cells:
 Cell(center: (1.25, 0.5), vertices: [(0.0, 1.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0)], type: CENTER_INSIDE)
 Cell(center: (1.0, 1.5), vertices: [(0.0, 2.0), (1.0, 2.0), (1.0, 1.0), (0.0, 1.0)], type: CENTER_INSIDE)
@@ -8,20 +8,20 @@ Cell(center: (0.5, 3.833333333333333), vertices: [(0.0, 5.0), (1.0, 5.0), (1.0, 
 ---
 Cell(center: (1.5, 0.5), vertices: [(1.0, 1.0), (2.0, 1.0), (2.0, 0.0), (1.0, 0.0)], type: CENTER_INSIDE)
 Cell(center: (1.5, 1.5), vertices: [(1.0, 2.0), (2.0, 2.0), (2.0, 1.0), (1.0, 1.0)], type: COMPLETLY_INSIDE)
-Cell(center: (1.5, 2.5), vertices: [(1.0, 3.0), (2.0, 3.0), (2.0, 2.0), (1.0, 2.0)], type: CENTER_ON_EDGE)
+Cell(center: (1.5, 2.5), vertices: [(1.0, 3.0), (2.0, 3.0), (2.0, 2.0), (1.0, 2.0)], type: COMPLETLY_INSIDE)
 Cell(center: (1.5, 3.5), vertices: [(1.0, 4.0), (2.0, 4.0), (2.0, 3.0), (1.0, 3.0)], type: COMPLETLY_INSIDE)
 Cell(center: (1.5, 4.5), vertices: [(1.0, 5.0), (2.0, 5.0), (2.0, 4.0), (1.0, 4.0)], type: CENTER_ON_EDGE)
 ---
 Cell(center: (2.5, 0.5), vertices: [(2.0, 1.0), (3.0, 1.0), (3.0, 0.0), (2.0, 0.0)], type: CENTER_INSIDE)
 Cell(center: (2.5, 1.5), vertices: [(2.0, 2.0), (3.0, 2.0), (3.0, 1.0), (2.0, 1.0)], type: COMPLETLY_INSIDE)
-Cell(center: (2.5, 2.5), vertices: [(2.0, 3.0), (3.0, 3.0), (3.0, 2.0), (2.0, 2.0)], type: CENTER_ON_EDGE)
-Cell(center: (2.5, 3.5), vertices: [(2.0, 4.0), (3.0, 4.0), (3.0, 3.0), (2.0, 3.0)], type: CENTER_ON_EDGE)
+Cell(center: (2.5, 2.5), vertices: [(2.0, 3.0), (3.0, 3.0), (3.0, 2.0), (2.0, 2.0)], type: COMPLETLY_INSIDE)
+Cell(center: (2.5, 3.5), vertices: [(2.0, 4.0), (3.0, 4.0), (3.0, 3.0), (2.0, 3.0)], type: COMPLETLY_INSIDE)
 Cell(center: (2.5, 4.5), vertices: [(2.0, 5.0), (3.0, 5.0), (3.0, 4.0), (2.0, 4.0)], type: CENTER_INSIDE)
 ---
 Cell(center: (3.5, 0.5), vertices: [(3.0, 1.0), (4.0, 1.0), (4.0, 0.0), (3.0, 0.0)], type: CENTER_ON_EDGE)
 Cell(center: (3.5, 1.5), vertices: [(3.0, 2.0), (4.0, 2.0), (4.0, 1.0), (3.0, 1.0)], type: COMPLETLY_INSIDE)
-Cell(center: (3.5, 2.5), vertices: [(3.0, 3.0), (4.0, 3.0), (4.0, 2.0), (3.0, 2.0)], type: CENTER_ON_EDGE)
-Cell(center: (3.5, 3.5), vertices: [(3.0, 4.0), (4.0, 4.0), (4.0, 3.0), (3.0, 3.0)], type: COMPLETLY_OUTSIDE)
+Cell(center: (3.5, 2.5), vertices: [(3.0, 3.0), (4.0, 3.0), (4.0, 2.0), (3.0, 2.0)], type: COMPLETLY_INSIDE)
+Cell(center: (3.5, 3.5), vertices: [(3.0, 4.0), (4.0, 4.0), (4.0, 3.0), (3.0, 3.0)], type: COMPLETLY_INSIDE)
 Cell(center: (3.5, 4.5), vertices: [(3.0, 5.0), (4.0, 5.0), (4.0, 4.0), (3.0, 4.0)], type: CENTER_INSIDE)
 ---
 Cell(center: (4.5, 1.1), vertices: [(4.0, 1.0), (5.0, 1.0), (5.0, 0.0), (4.0, 0.0)], type: CENTER_INSIDE)

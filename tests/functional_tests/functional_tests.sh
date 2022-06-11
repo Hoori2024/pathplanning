@@ -50,7 +50,22 @@ function testWithFiles() {
     fi
 }
 
-function launchAllTests() {
+# function launchTestsErrorManagement() {
+
+#     input_files=`ls $script_dir/$inputs_dir`
+
+#     for filename in $input_files
+#     do
+#         testWithFiles $filename
+#     done
+
+#     echo -e "$BOLD""\n--------------------\n""$UNBOLD"
+#     echo -e "$BOLD""Tests OK: $nbTestsOK""$UNBOLD"
+#     echo -e "$BOLD""Tests KO: $nbTestsKO""$UNBOLD"
+
+# }
+
+function launchNormalTests() {
 
     input_files=`ls $script_dir/$inputs_dir`
 
@@ -65,6 +80,7 @@ function launchAllTests() {
 
 }
 
-launchAllTests
+# launchTestsErrorManagement
+launchNormalTests
 rm -f logs
 echo

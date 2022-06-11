@@ -1,0 +1,23 @@
+Edges: [([7.0, 10.0], [11.0, 10.0]), ([11.0, 10.0], [11.0, 6.0]), ([11.0, 6.0], [9.0, 6.0]), ([9.0, 6.0], [9.0, 7.0]), ([9.0, 7.0], [7.0, 7.0]), ([7.0, 7.0], [7.0, 10.0])]
+Cells:
+Cell(center: (7.5, 6.5), vertices: [(7.0, 7.0), (8.0, 7.0), (8.0, 6.0), (7.0, 6.0)], type: COMPLETLY_OUTSIDE)
+Cell(center: (7.5, 7.5), vertices: [(7.0, 8.0), (8.0, 8.0), (8.0, 7.0), (7.0, 7.0)], type: COMPLETLY_INSIDE)
+Cell(center: (7.5, 8.5), vertices: [(7.0, 9.0), (8.0, 9.0), (8.0, 8.0), (7.0, 8.0)], type: COMPLETLY_INSIDE)
+Cell(center: (7.5, 9.5), vertices: [(7.0, 10.0), (8.0, 10.0), (8.0, 9.0), (7.0, 9.0)], type: COMPLETLY_INSIDE)
+---
+Cell(center: (8.5, 6.5), vertices: [(8.0, 7.0), (9.0, 7.0), (9.0, 6.0), (8.0, 6.0)], type: COMPLETLY_OUTSIDE)
+Cell(center: (8.5, 7.5), vertices: [(8.0, 8.0), (9.0, 8.0), (9.0, 7.0), (8.0, 7.0)], type: COMPLETLY_INSIDE)
+Cell(center: (8.5, 8.5), vertices: [(8.0, 9.0), (9.0, 9.0), (9.0, 8.0), (8.0, 8.0)], type: COMPLETLY_INSIDE)
+Cell(center: (8.5, 9.5), vertices: [(8.0, 10.0), (9.0, 10.0), (9.0, 9.0), (8.0, 9.0)], type: COMPLETLY_INSIDE)
+---
+Cell(center: (9.5, 6.5), vertices: [(9.0, 7.0), (10.0, 7.0), (10.0, 6.0), (9.0, 6.0)], type: COMPLETLY_INSIDE)
+Cell(center: (9.5, 7.5), vertices: [(9.0, 8.0), (10.0, 8.0), (10.0, 7.0), (9.0, 7.0)], type: COMPLETLY_INSIDE)
+Cell(center: (9.5, 8.5), vertices: [(9.0, 9.0), (10.0, 9.0), (10.0, 8.0), (9.0, 8.0)], type: COMPLETLY_INSIDE)
+Cell(center: (9.5, 9.5), vertices: [(9.0, 10.0), (10.0, 10.0), (10.0, 9.0), (9.0, 9.0)], type: COMPLETLY_INSIDE)
+---
+Cell(center: (10.5, 6.5), vertices: [(10.0, 7.0), (11.0, 7.0), (11.0, 6.0), (10.0, 6.0)], type: COMPLETLY_INSIDE)
+Cell(center: (10.5, 7.5), vertices: [(10.0, 8.0), (11.0, 8.0), (11.0, 7.0), (10.0, 7.0)], type: COMPLETLY_INSIDE)
+Cell(center: (10.5, 8.5), vertices: [(10.0, 9.0), (11.0, 9.0), (11.0, 8.0), (10.0, 8.0)], type: COMPLETLY_INSIDE)
+Cell(center: (10.5, 9.5), vertices: [(10.0, 10.0), (11.0, 10.0), (11.0, 9.0), (10.0, 9.0)], type: COMPLETLY_INSIDE)
+---
+
