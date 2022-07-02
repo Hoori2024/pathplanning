@@ -1,7 +1,9 @@
+""" Displays a comparison of the two pathplanning algorithms statistics. """
+
 from typing import List, Dict, Tuple, Callable
 import sys
 
-from src.pathplanning.parcellisation import *
+from src.pathplanning.parcellisation import Field, parse_input_file
 
 class PathData:
     """ Represents the travel time data for one set of parameters, when running
@@ -58,7 +60,8 @@ def get_sets_of_parameters() -> List[Dict[str, float]]:
         Raises:
             ValueError: The list of parameters sets is empty.
     """
-    from .pathplanning_comparison_parameters_sets import parameters_set
+    from algorithm_comparison.pathplanning_comparison_parameters_sets import \
+        parameters_set
     if parameters_set == []:
         raise ValueError('The list of parameters sets is empty.')
     return parameters_set
@@ -97,7 +100,7 @@ def run_algorithm_on_field(field: Field, algorithm: Callable) -> List[PathData]:
     parameters_sets: List[Dict[str, float]] = get_sets_of_parameters()
     path_data_list: List[PathData] = []
 
-    for set in parameters_sets:
+    for parameter_set in parameters_sets:
         # Run algorithm on Field with set of parameters: # TODO
         path_data: PathData = ...
         path_data_list.append(path_data)
