@@ -30,6 +30,8 @@ def main() -> int:
     f.arrange_cells()
 
     display_field(f)
+    path = [(4.5, 4.5), (8.5, 6.5), (3.5, 2.5)] #example to delete
+    display_path(f, path)
     sys.exit(0)
 
 
